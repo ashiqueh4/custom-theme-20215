@@ -1,0 +1,48 @@
+<script src="{{ 'cart-top-slider.js' | asset_url }}" defer="defer"></script>
+{% if settings.cts_show_slider_m %}
+<ecomminds-cart-top-slider class="color-{{ settings.cts_color_scheme }}" id="ecomminds-cart-top-slider">
+  <div class="swiper ctstSwiper">
+    <div class="swiper-wrapper">
+      {% if settings.cts_message_1 != blank %}
+      <div class="swiper-slide">
+        <a href="{{ settings.cts_url_1 }}">
+        <p>{{ settings.cts_message_1 }}</p>
+        </a>
+      </div>
+      {% endif %}
+      {% if settings.cts_message_2 != blank %}
+      <div class="swiper-slide">
+        <a href="{{ settings.cts_url_2 }}">
+        <p>{{ settings.cts_message_2 }}</p>
+        </a>
+      </div>
+      {% endif %}
+      {% if settings.cts_message_3 != blank %}
+      <div class="swiper-slide">
+        <a href="{{ settings.cts_url_3 }}">
+        <p>{{ settings.cts_message_3 }}</p>
+        </a>
+      </div>
+      {% endif %}
+      {% if settings.cts_message_4 != blank %}
+      <div class="swiper-slide">
+        <a href="{{ settings.cts_url_4 }}">
+        <p>{{ settings.cts_message_4 }}</p>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</ecomminds-cart-top-slider>
+{% endif %}
+{{ "cart-top-slider.css"|asset_url|stylesheet_tag }}
+{% style %}
+  .ctstSwiper a {
+    color: rgba(var(--color-foreground));
+}
+{% if settings.cts_color_bg %}  
+#ecomminds-cart-top-slider{
+  background:{{ settings.cts_color_bg }};
+}
+{% endif %}
+{% endstyle %}

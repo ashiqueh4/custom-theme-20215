@@ -1,0 +1,25 @@
+
+  .ecomminds-svg-slider::-webkit-scrollbar {
+    height: 8px;
+    -webkit-appearance: none;
+  }
+  .ecomminds-svg-slider::-webkit-scrollbar-track {
+
+  }
+  .ecomminds-svg-slider::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.3);
+    border-radius: 4px;
+  }
+  .ecomminds-svg-slider::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .ecomminds-svg-slider {
+    scrollbar-width: unset;
+    padding-bottom: 0px !important;
+  
+  }
+.esstSwiper {
+    padding: 0 30px 0 30px;
+}
+

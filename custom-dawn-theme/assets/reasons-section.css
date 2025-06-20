@@ -1,0 +1,109 @@
+
+
+.reasons-title {
+    text-align: center;
+}
+ .slider-container {
+    padding: 20px 0 0 0;
+}
+#yotpo-headline-reviews {
+    text-align: center;
+    margin: 0 auto;
+}
+ 
+  @media (min-width: 769px) {
+    .reason-items-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 40px;
+      justify-items: center;
+      align-items: start;
+    }
+    .slider-prev,
+    .slider-next {
+      display: none;
+    }
+  }
+
+.reason-item-title {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+.slider-container-new {
+    padding: 15px 0 0 0;
+}
+  @media (max-width: 768px) {
+    .reason-icon {
+      width: 150px;
+      height: 150px;
+    }
+    .slider-container {
+      position: relative;
+    }
+    .reason-items-wrapper {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 20px;
+      padding: 0 40px;
+    }
+    .reason-item {
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+      max-width: 250px; 
+    }
+
+    .slider-prev,
+    .slider-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      z-index: 10;
+      cursor: pointer;
+    }
+    .slider-prev {
+      left: 5px;
+    }
+    .slider-next {
+      right: 5px;
+    }
+  }
+
+
+  .reason-item {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .reason-icon {
+    width: 120px;
+    height: 120px;
+    background-color: #FFFFFF; 
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1); 
+    margin: 0 auto;
+  }
+.reason-item-new {
+    text-align: center;
+}
+  .reason-icon img {
+    max-width: 60%;
+    max-height: 60%;
+    object-fit: contain;
+    width: 100%;
+  }
+  .reason-item-title {
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .reason-item-text {
+    line-height: 1.4;
+  }

@@ -1,0 +1,149 @@
+{{ "custom-tabs-section.css"|asset_url|stylesheet_tag }}
+<script src="{{ 'custom-tabs-section.js' | asset_url }}" defer="defer"></script>
+<section class="custom-tabs-section page-width" id="section-{{ section.id }}">
+  <div class="tabs-container">
+    <ul class="tabs">
+      <li class="tab active" data-tab="tab1">{{ section.settings.text1 }}</li>
+      <li class="tab" data-tab="tab2">{{ section.settings.text2 }}</li>
+      <li class="tab" data-tab="tab3">{{ section.settings.text3 }}</li>
+      <li class="tab" data-tab="tab4">{{ section.settings.text4 }}</li>
+    </ul>
+    <div class="tab-indicator"></div>
+  </div>
+  
+  <div class="tabs-content">
+    <div class="tab-content active" id="tab1">
+      {% if product %}
+        {{ product.description }}
+      {% else %}
+        {{ settings.tab1_content }}
+      {% endif %}
+    </div>
+    <div class="tab-content" id="tab2">
+      {% assign rich_text_data = product.metafields.key.kullan.value | parse_json %}
+      {% if rich_text_data and rich_text_data.children.size > 0 %}
+        {% for child in rich_text_data.children %}
+          {% if child.type == "paragraph" %}
+            <p style="color: #333;">
+              {% for paragraph_child in child.children %}
+                {% if paragraph_child.type == "text" %}
+                  {% if paragraph_child.bold %}
+                    <strong>{{ paragraph_child.value }}</strong>
+                  {% else %}
+                    {{ paragraph_child.value }}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </p>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+ 
+      {% endif %}
+    </div>
+    <div class="tab-content" id="tab3">
+      {% assign rich_text_data = product.metafields.key.bilesen.value | parse_json %}
+      {% if rich_text_data and rich_text_data.children.size > 0 %}
+        {% for child in rich_text_data.children %}
+          {% if child.type == "paragraph" %}
+            <p style="color: #333;">
+              {% for paragraph_child in child.children %}
+                {% if paragraph_child.type == "text" %}
+                  {% if paragraph_child.bold %}
+                    <strong>{{ paragraph_child.value }}</strong>
+                  {% else %}
+                    {{ paragraph_child.value }}
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+            </p>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+
+      {% endif %}
+    </div>
+
+<div class="tab-content" id="tab4">
+  <div class="content-sss">
+    <ul>
+      {%- for faq in product.metafields.accordion.faqs.value -%}
+        <li>
+          <details>
+            <summary class="question-title-sss">
+              {{ faq.question }}
+            </summary>
+            <p class="answer-content">
+              {{ faq.answer }}
+            </p>
+          </details>
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</div>
+  </div>
+</section>
+{% style %}
+ #section-{{ section.id }}{
+   padding-top:{{ section.settings.st }}px;
+   padding-bottom:{{ section.settings.sb }}px;
+ }
+{% endstyle %}
+
+{% schema %}
+  {
+    "name": "Ecomminds 4 Step",
+    "settings": [
+      {
+        "type": "inline_richtext",
+        "id": "text1",
+        "label": "Ürün Açıklaması",
+        "default":"Ürün Açıklaması"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "text2",
+        "label": "Nasıl Kullanılır ?",
+        "default":"Nasıl Kullanılır ?"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "text3",
+        "label": "Temel Bileşenler",
+        "default":"Temel Bileşenler"
+      },
+      {
+        "type": "inline_richtext",
+        "id": "text4",
+        "label": "S.S.S",
+        "default":"S.S.S"
+      },
+      {
+      "type": "range",
+      "id": "st",
+      "min": 5,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Section padding top",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "sb",
+      "min": 5,
+      "max": 80,
+      "step": 1,
+      "unit": "px",
+      "label": "Section padding bottom",
+      "default": 16
+    }
+    ],
+    "presets": [
+      {
+        "name": "Ecomminds 4 Step"
+      }
+    ]
+  }
+{% endschema %}

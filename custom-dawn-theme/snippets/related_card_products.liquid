@@ -1,0 +1,146 @@
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+{{ 'component-price.css' | asset_url | stylesheet_tag }}
+{{ 'section-related-products.css' | asset_url | stylesheet_tag }}
+
+{% if settings.image_shape == 'blob' %}
+  {{ 'mask-blobs.css' | asset_url | stylesheet_tag }}
+{%- endif -%}
+
+{%- unless settings.quick_add == 'none' -%}
+  {{ 'quick-add.css' | asset_url | stylesheet_tag }}
+{%- endunless -%}
+
+{%- if settings.quick_add == 'standard' -%}
+  <script src="{{ 'quick-add.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+
+{%- if settings.quick_add == 'bulk' -%}
+  <script src="{{ 'quick-add-bulk.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'price-per-item.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'quick-order-list.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+<script src="{{ 'related-card-products.js' | asset_url }}" defer="defer"></script>
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ settings.padding_top }}px;
+      padding-bottom: {{ settings.padding_bottom }}px;
+    }
+  }
+
+  .color-swatch-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-top: 0px;
+    padding: 10px;
+  }
+  .color-swatch-item.disabled img{
+    cursor: not-allowed;
+  }
+  .color-swatch-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: capitalize;
+    cursor: pointer;
+  }
+  .color-swatch-wrapper .color_name {
+    display: none;
+  }
+    .color-swatch-text {
+      border-radius: {{ settings.c_sw_sp }}px;
+      height: {{ settings.c_sw_s }}px;
+      width: {{ settings.c_sw_s }}px;
+    }
+    .color-swatch-wrapper img {
+      border-radius: {{ settings.c_sw_sp }}px;
+      height: {{ settings.c_sw_s }}px;
+      width: {{ settings.c_sw_s }}px;
+     }
+    .color-swatch {
+      border-radius: {{ settings.c_sw_sp }}px;
+      height: {{ settings.c_sw_s }}px;
+      width: {{ settings.c_sw_s }}px;
+      object-fit: cover;
+      cursor: pointer;
+     }
+    .color-swatch-item.active img,.color-swatch-item.active .color-swatch-text {
+      border: 2px solid {{ settings.c_sw_b}};
+     }
+  .cart-drawer__related_products .related-products {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+  
+ 
+{%- endstyle -%}
+
+
+
+<div class="color-{{ settings.color_scheme }} gradient">
+  <div
+    class="related-products page-width section-{{ section.id }}-padding isolate{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+    data-section-id="{{ s_id }}"
+    data-product-id="{{ p_id }}"
+    data-product-dcl="{{ settings.columns_desktop }}"
+    data-product-mcl="{{ settings.columns_mobile }}"
+    id="related-products-cart-related"
+  >
+
+      <h2 class="related-products__heading inline-richtext {{ settings.heading_size }}">
+        {{ settings.heading }}
+      </h2>
+       <ecomminds-related-products-cart
+        id="ecomminds-related-products-cart-wrapper"
+        class="related-slider-wrapper"
+        data-slider-selected="4">
+          <div class="swiper reltSwiper">
+          <div class="swiper-wrapper">
+        {% assign skip_card_product_styles = false %}
+        {% assign cart_first_product = '' %}
+          {% for collection in first_product.collections %}
+              {% if forloop.first %}
+                  {% assign cart_first_product = collection.handle %}
+                {% endif %}
+          {% endfor %}
+        {% assign selected_collection = collections[cart_first_product] %}
+          {% for recommendation in selected_collection.products  %}
+           
+            {% unless cart_product_ids contains recommendation.id %}
+            {% if recommendation.available %}
+            <div class="swiper-slide">
+            {% render 'card-product',
+              card_product: recommendation,
+              media_aspect_ratio: settings.image_ratio,
+              image_shape: settings.image_shape,
+              show_secondary_image: settings.show_secondary_image,
+              show_vendor: settings.show_vendor_,
+              show_rating: settings.show_rating,
+              skip_styles: skip_card_product_styles,
+               quick_add: settings.quick_add,
+              section_id: section.id
+            %}
+            </div>
+            {% endif %}
+              {% endunless %}
+          {%- assign skip_card_product_styles = true -%}
+        {% endfor %}
+          </div>
+          </div>
+      </ecomminds-related-products-cart>
+   
+  </div>
+  
+  {% if settings.image_shape == 'arch' %}
+    {{ 'mask-arch.svg' | inline_asset_content }}
+  {%- endif -%}
+</div>
+
+

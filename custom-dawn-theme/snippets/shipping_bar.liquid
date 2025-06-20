@@ -1,0 +1,80 @@
+{%- style -%}
+  .shipping_txt{text-align:center;}
+  .free_shipping_bar {
+    font-size: .75rem;
+    border-radius: 3.75rem;
+    background-color: #b2c0ca;
+    
+    padding:2px 0 ;
+  }
+  /*16-05-2025  */
+   /* .free_shipping_bar {
+    font-size: .75rem;
+    border-radius: 3.75rem;
+    background: url(https://cdn.medik8.com/f3b762a8-adbe-4f3f-8425-97b09363b2de/diagnol.png) repeat-x center top / contain, linear-gradient(45deg, black, transparent);
+    padding: 5px 0;
+} */
+  #shipping_bar{
+    margin-bottom: 30px;
+  }
+  .progress-bar {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-box-pack: center;
+    color: #fff;
+    text-align: right;
+    /* background-color: {{ settings.shipping_bar_color }}; */
+    background:url(https://cdn.medik8.com/f3b762a8-adbe-4f3f-8425-97b09363b2de/diagnol.png) repeat-x center top/contain,linear-gradient(45deg, black, transparent);
+    transition: width .6s ease;
+    border-radius: 3.75rem;
+    height:1.25rem;
+  }
+  .progress-bar:after {
+    display: inline-block;
+    content: "";
+    width: 17px;
+    height: 17px;
+    background-image: url(data:image/svg+xml;base64,DQo8c3ZnIGlkPSJhYjIxYjQ5NS0xNTUyLTRmYTEtOTFhMi1iNWZjYjMyM2Y0NTEiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNjQgNjQiIHdpZHRoPSI1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZmlsbD0iI2ZmZiIgZD0ibTIxLjYzMzUgNDcuMTg2NGMtMS44OTI3LTIuMTI2NC0zLjQyMTYtNC4yMDY0LTQuODk4NS02LjIyMDhhMzUuNDY3IDM1LjQ2NyAwIDAgMSAtMy40OTQzLTUuODQ0OGMtLjYxLTEuMjQ3NC0uODgtMi41MTA1LjQ0MTMtMy4zMjI2IDMuNzg2Ny0yLjMyNzEgNC41NjI3LS4xMDUxIDYuNjIwOSAyLjQ3MzEgMS4yMiAxLjUyNzcgMy4wMTkgNC4wNDY5IDQuMTQ2MiA1LjYzODYgMS4wNzY3IDEuNTIgMi4zODkzLTEuMjIzNCAyLjkxMzMtMS45OTc1IDEuODYyNC0yLjc1MTEgNi43MDI5LTkuNDg2MyA4LjcwMzItMTEuOTc1OSAxLjg5OS0yLjM2MzQgOC4wMjg1LTguOTg0NCA5LjE3MTEtMTAuMDM3NS45NzI2LS44OTY3IDMuMDI2MS0yLjg2MzUgNC40MDctMS43Nzg1IDEuNDUxMSAxLjE0IDIuMTYgMy4zMDcgMS4xNCA0LjcxNi0xLjc3NjQgMi40NTMtNC41NjY3IDQuNzg2NS02LjQ5NzQgNy4xMjIyLTMuOTA4MiA0LjcyOC03LjYwODMgOS44MjQ0LTExLjE2IDE0Ljg5ODgtMS4yMDY5IDEuNzI0NC0yLjkwMTQgNC42MTI1LTMuOTUzNCA2LjQ4MjYtMS45Njc5IDMuNDk4NS0zLjY5NjQgNC4xNjQzLTcuNTM5NC0uMTUzN3oiLz48L3N2Zz4=);
+    border: 3px solid #000;
+    border-radius: 50%;
+    top: -2px;
+    position: relative;
+    z-index: 9999;
+    background-size: contain;
+    
+    
+  }
+{%- endstyle -%}
+{%- liquid 
+    assign cartSubTotal = cart.total_price
+    assign eligibleBar = 0
+    assign leftAmount = 0
+    assign freeShippingBar = 100
+
+    if settings.free_shipping_price
+        assign eligibleBar = settings.free_shipping_price | times: 100
+    endif
+-%}
+<div class="isolate gradient page-width" id="shipping_bar">
+   {% assign freeShippingBar = cartSubTotal | divided_by: settings.free_shipping_price | round: 5 %}
+  {% if freeShippingBar > 100 %}
+    {% assign freeShippingBar = 100 %}
+    {% endif %}
+  <div class="delivery-shipping">
+   
+   {%- if cartSubTotal > eligibleBar -%}
+      <p class="shipping_txt">{{ settings.free_shipping_txt }}</p>
+    {%- else -%}
+      {%- assign leftAmount = eligibleBar | minus: cartSubTotal | money -%}
+      {%- assign leftAmountMsg = settings.free_shipping_left | replace: '${left}', leftAmount -%}
+      <p class="shipping_txt">{{ leftAmountMsg }}</p>
+    {%- endif -%}
+  </div>
+  <div class="free_shipping_bar">
+
+    <div class="progress-bar" style="width:{{ freeShippingBar }}%;" role="progressbar">
+      <span class="section2__progressBarCircle"></span>
+    </div>
+
+  </div>  
+</div>

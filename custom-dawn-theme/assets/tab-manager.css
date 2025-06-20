@@ -1,0 +1,62 @@
+@media screen and (max-width: 989px) {
+  .featured__image--text .card__content{
+    box-sizing: border-box;
+  }
+  .slider.slider--tablet.contains-card--standard .slider__slide:not(.collection-list__item--no-media){
+    width: calc((100% - var(--desktop-margin-left-first-item)) / 2.5 - var(--grid-desktop-horizontal-spacing) * 3);
+  }
+  .slider--tablet.grid--peek .grid__item.slider__slide:first-of-type {
+      margin-left: 0;
+  }
+  .feactured-grid .card-wrapper.product-card-wrapper .card--standard>.card__content .card__information {
+    padding: 10px !important;
+  }
+  .feactured-grid .card-wrapper.product-card-wrapper .card--standard>.card__content .quick-add.no-js-hidden{
+    padding: 0 10px;
+  }
+  .featured__text--spacing {
+    padding-left: 1.5rem;
+    scroll-margin-left: 1.5rem;
+  }
+}
+@media screen and (max-width: 800px) {
+  .slider.slider--tablet.contains-card--standard .slider__slide:not(.collection-list__item--no-media){
+    width: calc((100% - var(--desktop-margin-left-first-item)) / 2 - var(--grid-desktop-horizontal-spacing) * 3);
+  }
+}
+@media screen and (max-width: 750px) {
+  .slider.slider--tablet.contains-card--standard .slider__slide:not(.collection-list__item--no-media){
+    width: calc((100% - var(--desktop-margin-left-first-item)) / 1.4 - var(--grid-mobile-horizontal-spacing) * 3);
+  }
+  .feactured-grid .colection-text-block_wrap .card-wrapper.product-card-wrapper .card--standard>.card__content .card__information {
+    padding:0 !important;
+  }
+  .feactured-grid .card-wrapper.product-card-wrapper .card__content .card__information .banner__buttons .button{
+    padding: 0 2rem;
+  }
+
+}
+
+
+.custom_collection_slider_prd .products-feed__tab .button {
+    background: unset;
+    padding: 0px;
+    border-radius: 0px;
+    margin: 0 10px 0 10px;
+    font-size: large;
+    font-weight: 600;
+   
+}
+
+.custom_collection_slider_prd .products-feed__tab .button.active {
+    border-bottom: 2px solid;
+    border-image: linear-gradient(108.63deg, #d80e80 16.74%, #7800bf 33.38%, #5447d6 51.86%, #287ab8 68.1%, #007a7d 81.13%);
+    border-image-slice: 1;
+}
+.custom_collection_slider_prd .products-feed__tab .button:hover {
+    background: unset;
+}
+.custom_collection_slider_prd .products-feed__tab .button:after,
+.custom_collection_slider_prd .products-feed__tab .button:before{
+  display: none;
+}

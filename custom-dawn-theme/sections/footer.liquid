@@ -1,0 +1,663 @@
+{% comment %}theme-check-disable UndefinedObject{% endcomment %}
+{{ 'section-footer.css' | asset_url | stylesheet_tag }}
+{{ 'component-newsletter.css' | asset_url | stylesheet_tag }}
+{{ 'component-list-menu.css' | asset_url | stylesheet_tag }}
+{{ 'component-list-payment.css' | asset_url | stylesheet_tag }}
+{{ 'component-list-social.css' | asset_url | stylesheet_tag }}
+
+{%- style -%}
+  .footer {
+    margin-top: {{ section.settings.margin_top | times: 0.75 | round: 0 }}px;
+  }
+
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .footer {
+      margin-top: {{ section.settings.margin_top }}px;
+    }
+
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<footer class="footer color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding">
+  {%- liquid
+    assign has_social_icons = true
+    if settings.social_facebook_link == blank and settings.social_instagram_link == blank and settings.social_youtube_link == blank and settings.social_tiktok_link == blank and settings.social_twitter_link == blank and settings.social_pinterest_link == blank and settings.social_snapchat_link == blank and settings.social_tumblr_link == blank and settings.social_vimeo_link == blank
+      assign has_social_icons = false
+    endif
+
+    if settings.brand_image == blank and settings.brand_headline == blank and settings.brand_description == blank
+      assign brand_empty = true
+    endif
+
+    if section.blocks.size == 1 and section.blocks[0].type == 'brand_information' and brand_empty and has_social_icons == false and section.settings.newsletter_enable == false and section.settings.enable_follow_on_shop == false
+      assign only_empty_brand = true
+    endif
+  -%}
+  {%- if section.blocks.size > 0
+    or section.settings.newsletter_enable
+    or section.settings.show_social
+    and has_social_icons == true
+    or section.settings.enable_follow_on_shop
+  -%}
+    {%- unless only_empty_brand -%}
+      <div class="footer__content-top page-width">
+        {%- if section.blocks.size > 0 -%}
+          {%- liquid
+            if section.blocks.size == 9
+              assign footer_grid_class = 'grid--3-col-tablet'
+            elsif section.blocks.size > 6
+              assign footer_grid_class = 'grid--4-col-desktop'
+            elsif section.blocks.size > 4
+              assign footer_grid_class = 'grid--3-col-tablet'
+            endif
+          -%}
+          <div
+            class="footer__blocks-wrapper grid grid--1-col grid--2-col grid--4-col-tablet {{ footer_grid_class }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+            {% if settings.animations_reveal_on_scroll %}
+              data-cascade
+            {% endif %}
+          >
+            {%- for block in section.blocks -%}
+              <div
+                class="footer-block grid__item{% if block.type == 'link_list' %} footer-block--menu{% endif %}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                {{ block.shopify_attributes }}
+                {% if settings.animations_reveal_on_scroll %}
+                  data-cascade
+                  style="--animation-order: {{ forloop.index }};"
+                {% endif %}
+              >
+                {%- if block.settings.heading != blank -%}
+                  <h2 class="footer-block__heading inline-richtext">{{- block.settings.heading -}}</h2>
+                {%- endif -%}
+
+                {%- case block.type -%}
+                  {%- when '@app' -%}
+                    {% render block %}
+                  {%- when 'text' -%}
+                    <div class="footer-block__details-content rte">
+                      {{ block.settings.subtext }}
+                    </div>
+                  {%- when 'link_list' -%}
+                    {%- if block.settings.menu != blank -%}
+                      <ul class="footer-block__details-content list-unstyled">
+                        {%- for link in block.settings.menu.links -%}
+                          <li>
+                            <a
+                              href="{{ link.url }}"
+                              class="link link--text list-menu__item list-menu__item--link{% if link.active %} list-menu__item--active{% endif %}"
+                            >
+                              {{ link.title | escape }}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- endif -%}
+                  {%- when 'brand_information' -%}
+                  <!-- newsletter -->
+                  <div
+                    class="footer-block--newsletter{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+                    {% if settings.animations_reveal_on_scroll %}
+                      data-cascade
+                    {% endif %}
+                  >
+                    {%- if section.settings.newsletter_enable -%}
+                      <div class="footer-block__newsletter">
+                        {%- if section.settings.newsletter_heading != blank -%}
+                          <h2 class="footer-block__heading inline-richtext">{{ section.settings.newsletter_heading }}</h2>
+                        {%- endif -%}
+                      {%- if section.settings.newsletter_subheading != blank -%}
+                          <p class="footer-block__subheading inline-richtext">{{ section.settings.newsletter_subheading }}</p>
+                        {%- endif -%}
+                        {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form' -%}
+                          <input type="hidden" name="contact[tags]" value="newsletter">
+                          <div class="newsletter-form__field-wrapper">
+                            <div class="field">
+                              <input
+                                id="NewsletterForm--{{ section.id }}"
+                                type="email"
+                                name="contact[email]"
+                                class="field__input"
+                                value="{{ form.email }}"
+                                aria-required="true"
+                                autocorrect="off"
+                                autocapitalize="off"
+                                autocomplete="email"
+                                {% if form.errors %}
+                                  autofocus
+                                  aria-invalid="true"
+                                  aria-describedby="ContactFooter-error"
+                                {% elsif form.posted_successfully? %}
+                                  aria-describedby="ContactFooter-success"
+                                {% endif %}
+                                placeholder="{{ 'newsletter.label' | t }}"
+                                required
+                              >
+                              <label class="field__label" for="NewsletterForm--{{ section.id }}">
+                                {{ 'newsletter.label' | t }}
+                              </label>
+                              <button
+                                type="submit"
+                                class="newsletter-form__button field__button"
+                                name="commit"
+                                id="Subscribe"
+                                aria-label="{{ 'newsletter.button_label' | t }}"
+                              >
+                                <span class="svg-wrapper">
+                                  {{- 'icon-arrow.svg' | inline_asset_content -}}
+                                </span>
+                              </button>
+                            </div>
+                            {%- if form.errors -%}
+                              <small class="newsletter-form__message form__message" id="ContactFooter-error">
+                                <span class="svg-wrapper">
+                                  {{- 'icon-error.svg' | inline_asset_content -}}
+                                </span>
+                                {{- form.errors.translated_fields.email | capitalize }}
+                                {{ form.errors.messages.email -}}
+                              </small>
+                            {%- endif -%}
+                          </div>
+                          {%- if form.posted_successfully? -%}
+                            <h3
+                              class="newsletter-form__message newsletter-form__message--success form__message"
+                              id="ContactFooter-success"
+                              tabindex="-1"
+                              autofocus
+                            >
+                              <span class="svg-wrapper">
+                                {{- 'icon-success.svg' | inline_asset_content -}}
+                              </span>
+                              {{- 'newsletter.success' | t }}
+                            </h3>
+                          {%- endif -%}
+                        {%- endform -%}
+                      {%- if section.settings.newsletter_pheading != blank -%}
+                          <p class="footer-block__pheading inline-richtext">{{ section.settings.newsletter_pheading }}</p>
+                        {%- endif -%}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                  <!-- newsletter -->
+                    <div class="footer-block__brand-info">
+                      {%- if settings.brand_image != blank -%}
+                        {%- assign brand_image_height = settings.brand_image_width
+                          | divided_by: settings.brand_image.aspect_ratio
+                        -%}
+                        <div
+                          class="footer-block__image-wrapper"
+                          style="max-width: min(100%, {{ settings.brand_image_width }}px);"
+                        >
+                          {{
+                            settings.brand_image
+                            | image_url: width: 1100
+                            | image_tag:
+                              loading: 'lazy',
+                              widths: '50, 100, 150, 200, 300, 400, 550, 800, 1100',
+                              height: brand_image_height,
+                              width: settings.brand_image_width
+                          }}
+                        </div>
+                      {%- endif -%}
+                      {%- if settings.brand_headline != blank -%}
+                        <h2 class="footer-block__heading rte">{{ settings.brand_headline }}</h2>
+                      {%- endif -%}
+                      {%- if settings.brand_description != blank -%}
+                        <div class="rte">{{ settings.brand_description }}</div>
+                      {%- endif -%}
+                      {%- if block.settings.show_social and has_social_icons -%}
+                        {%- render 'social-icons', class: 'footer__list-social' -%}
+                      {%- endif -%}
+                    </div>
+                  {%- when 'image' -%}
+                    <div class="footer-block__details-content footer-block-image {{ block.settings.alignment }}">
+                      {%- if block.settings.image != blank -%}
+                        {%- assign image_size_2x = block.settings.image_width | times: 2 | at_most: 5760 -%}
+                        <div
+                          class="footer-block__image-wrapper"
+                          style="max-width: min(100%, {{ block.settings.image_width }}px);"
+                        >
+                          <img
+                            srcset="{{ block.settings.image | image_url: width: block.settings.image_width }}, {{ block.settings.image | image_url: width: image_size_2x }} 2x"
+                            src="{{ block.settings.image | image_url: width: 760 }}"
+                            alt="{{ block.settings.image.alt | escape }}"
+                            loading="lazy"
+                            width="{{ block.settings.image.width }}"
+                            height="{{ block.settings.image.height }}"
+                          >
+                        </div>
+                      {%- else -%}
+                        {{ 'image' | placeholder_svg_tag: 'placeholder-svg placeholder' }}
+                      {%- endif -%}
+                    </div>
+                {%- endcase -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+       {% comment %}
+        <div
+          class="footer-block--newsletter{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+          {% if settings.animations_reveal_on_scroll %}
+            data-cascade
+          {% endif %}
+        >
+          {%- if section.settings.newsletter_enable -%}
+            <div class="footer-block__newsletter">
+              {%- if section.settings.newsletter_heading != blank -%}
+                <h2 class="footer-block__heading inline-richtext">{{ section.settings.newsletter_heading }}</h2>
+              {%- endif -%}
+              {%- form 'customer', id: 'ContactFooter', class: 'footer__newsletter newsletter-form' -%}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                <div class="newsletter-form__field-wrapper">
+                  <div class="field">
+                    <input
+                      id="NewsletterForm--{{ section.id }}"
+                      type="email"
+                      name="contact[email]"
+                      class="field__input"
+                      value="{{ form.email }}"
+                      aria-required="true"
+                      autocorrect="off"
+                      autocapitalize="off"
+                      autocomplete="email"
+                      {% if form.errors %}
+                        autofocus
+                        aria-invalid="true"
+                        aria-describedby="ContactFooter-error"
+                      {% elsif form.posted_successfully? %}
+                        aria-describedby="ContactFooter-success"
+                      {% endif %}
+                      placeholder="{{ 'newsletter.label' | t }}"
+                      required
+                    >
+                    <label class="field__label" for="NewsletterForm--{{ section.id }}">
+                      {{ 'newsletter.label' | t }}
+                    </label>
+                    <button
+                      type="submit"
+                      class="newsletter-form__button field__button"
+                      name="commit"
+                      id="Subscribe"
+                      aria-label="{{ 'newsletter.button_label' | t }}"
+                    >
+                      <span class="svg-wrapper">
+                        {{- 'icon-arrow.svg' | inline_asset_content -}}
+                      </span>
+                    </button>
+                  </div>
+                  {%- if form.errors -%}
+                    <small class="newsletter-form__message form__message" id="ContactFooter-error">
+                      <span class="svg-wrapper">
+                        {{- 'icon-error.svg' | inline_asset_content -}}
+                      </span>
+                      {{- form.errors.translated_fields.email | capitalize }}
+                      {{ form.errors.messages.email -}}
+                    </small>
+                  {%- endif -%}
+                </div>
+                {%- if form.posted_successfully? -%}
+                  <h3
+                    class="newsletter-form__message newsletter-form__message--success form__message"
+                    id="ContactFooter-success"
+                    tabindex="-1"
+                    autofocus
+                  >
+                    <span class="svg-wrapper">
+                      {{- 'icon-success.svg' | inline_asset_content -}}
+                    </span>
+                    {{- 'newsletter.success' | t }}
+                  </h3>
+                {%- endif -%}
+              {%- endform -%}
+            </div>
+          {%- endif -%}
+
+          {%- if shop.features.follow_on_shop? and section.settings.enable_follow_on_shop -%}
+            <div class="footer__follow-on-shop">
+              {{ shop | login_button: action: 'follow' }}
+            </div>
+          {%- endif -%}
+
+          {%- if section.settings.show_social and has_social_icons -%}
+            {%- render 'social-icons', class: 'footer__list-social' -%}
+          {%- endif -%}
+        </div>
+      {% endcomment %}
+      </div>
+    {%- endunless -%}
+  {%- endif -%}
+
+  <div
+    class="footer__content-bottom{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}"
+    {% if settings.animations_reveal_on_scroll %}
+      data-cascade
+    {% endif %}
+  >
+    <div class="footer__content-bottom-wrapper page-width">
+      <div class="footer__column footer__localization isolate">
+        {%- if section.settings.enable_country_selector and localization.available_countries.size > 1 -%}
+          <localization-form>
+            {%- form 'localization', id: 'FooterCountryForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="caption-large text-body" id="FooterCountryLabel">{{ 'localization.country_label' | t }}</h2>
+                {%- render 'country-localization', localPosition: 'FooterCountry' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+
+        {%- if section.settings.enable_language_selector and localization.available_languages.size > 1 -%}
+          <localization-form>
+            {%- form 'localization', id: 'FooterLanguageForm', class: 'localization-form' -%}
+              <div>
+                <h2 class="caption-large text-body" id="FooterLanguageLabel">
+                  {{ 'localization.language_label' | t }}
+                </h2>
+                {%- render 'language-localization', localPosition: 'FooterLanguage' -%}
+              </div>
+            {%- endform -%}
+          </localization-form>
+        {%- endif -%}
+      </div>
+      <div class="footer__column footer__column--info">
+        {%- if section.settings.payment_enable -%}
+          <div class="footer__payment">
+            <span class="visually-hidden">{{ 'sections.footer.payment' | t }}</span>
+            {% comment %}
+            <ul class="list list-payment" role="list">
+              {%- for type in shop.enabled_payment_types -%}
+                <li class="list-payment__item">
+                  {{ type | payment_type_svg_tag: class: 'icon icon--full-color' }}
+                </li>
+              {%- endfor -%}
+            </ul>
+            {% endcomment %}
+          <ul class="list list-payment" role="list">
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-american-express-title" role="img"><title id="icon-american-express-title">American Express Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0Z" style="fill: #006fcf; fill-rule: nonzero"></path><path d="M91.717,83.067l-0,-35.088l62.45,0.054l-0,9.692l-7.217,7.717l7.217,7.779l-0,9.896l-11.525,-0l-6.125,-6.759l-6.084,6.784l-38.716,-0.084l-0,0.009Z" style="fill: #fff; fill-rule: nonzero"></path><path d="M95.888,79.217l-0,-27.375l23.216,-0l0,6.304l-15.7,-0l0,4.283l15.325,0l0,6.2l-15.325,0l0,4.209l15.7,-0.001l0,6.38l-23.216,-0Z" style="fill: #006fcf; fill-rule: nonzero"></path><path d="M118.988,79.217l12.845,-13.704l-12.845,-13.676l9.941,0.001l7.85,8.679l7.875,-8.675l9.513,-0l-0,0.212l-12.571,13.459l12.571,13.32l-0,0.388l-9.613,-0l-7.987,-8.763l-7.909,8.767l-9.671,0l0,-0.008Z" style="fill: #006fcf; fill-rule: nonzero"></path><path d="M94.625,16.833l15.058,0l5.288,12.004l-0,-12.004l18.583,0l3.209,8.996l3.212,-8.996l14.192,0l-0,35.088l-75,-0l15.458,-35.088Z" style="fill: #fff; fill-rule: nonzero"></path><path d="M97.479,20.646l-12.15,27.358l8.334,0l2.291,-5.479l12.417,0l2.292,5.479l8.541,0l-12.1,-27.358l-9.625,-0Zm1.042,15.737l3.646,-8.708l3.637,8.708l-7.283,0Z" style="fill: #006fcf; fill-rule: nonzero"></path><path d="M119.088,48l-0.001,-27.362l11.713,0.041l6.033,16.821l6.067,-16.858l11.267,-0l-0,27.354l-7.25,0.067l-0,-18.792l-6.85,18.725l-6.625,-0l-6.984,-18.788l0,18.792l-7.371,0Z" style="fill: #006fcf; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-apple-pay-title" role="img"><title id="icon-apple-pay-title">Apple Pay Logo</title><path d="M143.28,0l-128.226,0c-0.535,0 -1.07,0 -1.603,0.003c-0.45,0.004 -0.899,0.008 -1.349,0.021c-0.981,0.026 -1.97,0.085 -2.938,0.258c-0.971,0.167 -1.912,0.477 -2.792,0.92c-1.768,0.9 -3.205,2.337 -4.105,4.105c-0.444,0.88 -0.754,1.822 -0.92,2.794c-0.175,0.969 -0.233,1.957 -0.259,2.937c-0.012,0.449 -0.019,0.899 -0.021,1.349c-0.002,0.532 -0.002,1.066 -0.002,1.602l-0,72.021c-0,0.536 -0,1.069 0.002,1.604c0.003,0.449 0.008,0.899 0.021,1.349c0.026,0.978 0.085,1.967 0.259,2.935c0.165,0.972 0.475,1.914 0.919,2.794c0.447,0.879 1.03,1.681 1.727,2.378c0.697,0.698 1.499,1.281 2.378,1.727c0.894,0.456 1.809,0.745 2.794,0.922c0.967,0.172 1.956,0.231 2.937,0.257c0.45,0.011 0.899,0.016 1.349,0.019c0.533,0.004 1.068,0.004 1.603,0.004l128.226,0c0.533,0 1.068,0 1.601,-0.004c0.449,-0.002 0.899,-0.008 1.351,-0.019c0.978,-0.026 1.967,-0.085 2.937,-0.257c0.972,-0.167 1.913,-0.478 2.792,-0.922c1.767,-0.901 3.205,-2.338 4.105,-4.105c0.456,-0.894 0.745,-1.809 0.919,-2.794c0.176,-0.968 0.232,-1.957 0.259,-2.935c0.012,-0.45 0.019,-0.9 0.021,-1.349c0.003,-0.535 0.003,-1.068 0.003,-1.604l0,-72.02c0,-0.536 0,-1.07 -0.003,-1.604c-0.002,-0.449 -0.009,-0.899 -0.021,-1.348c-0.027,-0.98 -0.083,-1.968 -0.259,-2.937c-0.164,-0.972 -0.474,-1.914 -0.919,-2.794c-0.9,-1.767 -2.337,-3.205 -4.105,-4.105c-0.88,-0.443 -1.821,-0.753 -2.792,-0.919c-0.97,-0.174 -1.959,-0.232 -2.937,-0.258c-0.45,-0.012 -0.901,-0.019 -1.351,-0.021c-0.533,-0.004 -1.068,-0.004 -1.601,-0.004Z" style="fill-rule: nonzero"></path><path d="M143.28,3.333l1.578,0.003c0.426,0.003 0.854,0.008 1.283,0.019c0.748,0.021 1.622,0.061 2.438,0.207c0.708,0.128 1.302,0.321 1.872,0.612c1.141,0.58 2.068,1.508 2.646,2.649c0.289,0.566 0.482,1.157 0.609,1.871c0.145,0.806 0.186,1.683 0.206,2.435c0.012,0.425 0.018,0.849 0.019,1.284c0.004,0.525 0.004,1.05 0.004,1.577l0,72.021c0,0.527 0,1.052 -0.004,1.588c-0.001,0.424 -0.007,0.849 -0.018,1.274c-0.021,0.751 -0.062,1.628 -0.209,2.443c-0.107,0.649 -0.312,1.277 -0.609,1.864c-0.58,1.141 -1.508,2.069 -2.65,2.649c-0.566,0.289 -1.158,0.482 -1.86,0.609c-0.831,0.148 -1.743,0.188 -2.429,0.207c-0.431,0.01 -0.86,0.016 -1.301,0.018c-0.524,0.004 -1.05,0.004 -1.575,0.004l-128.247,-0c-0.519,-0 -1.038,-0 -1.567,-0.004c-0.425,-0.002 -0.849,-0.007 -1.274,-0.017c-0.702,-0.019 -1.614,-0.06 -2.438,-0.208c-0.652,-0.108 -1.284,-0.315 -1.875,-0.613c-0.566,-0.288 -1.082,-0.663 -1.53,-1.114c-0.45,-0.448 -0.825,-0.965 -1.112,-1.531c-0.296,-0.59 -0.502,-1.222 -0.61,-1.873c-0.147,-0.815 -0.188,-1.688 -0.207,-2.433c-0.011,-0.426 -0.017,-0.853 -0.019,-1.279l-0.003,-1.252l0,-72.684l0.002,-1.25c0.002,-0.427 0.008,-0.854 0.019,-1.281c0.021,-0.747 0.061,-1.62 0.209,-2.441c0.108,-0.651 0.314,-1.281 0.61,-1.87c0.287,-0.564 0.661,-1.079 1.114,-1.531c0.449,-0.45 0.966,-0.826 1.532,-1.114c0.589,-0.296 1.219,-0.501 1.869,-0.61c0.816,-0.146 1.691,-0.186 2.44,-0.207c0.427,-0.011 0.854,-0.016 1.278,-0.019l1.583,-0.003l128.226,0" style="fill: #fff; fill-rule: nonzero"></path><g><g><path d="M42.124,33.756c1.325,-1.656 2.223,-3.88 1.986,-6.153c-1.938,0.097 -4.303,1.279 -5.673,2.937c-1.23,1.42 -2.318,3.736 -2.035,5.914c2.176,0.188 4.351,-1.088 5.722,-2.698" style="fill-rule: nonzero"></path><path d="M44.086,36.879c-3.162,-0.189 -5.847,1.793 -7.356,1.793c-1.51,0 -3.822,-1.698 -6.321,-1.652c-3.253,0.047 -6.271,1.887 -7.923,4.813c-3.395,5.851 -0.896,14.533 2.407,19.299c1.603,2.359 3.536,4.954 6.082,4.861c2.406,-0.095 3.349,-1.558 6.273,-1.558c2.922,0 3.772,1.558 6.319,1.51c2.64,-0.047 4.292,-2.359 5.895,-4.718c1.84,-2.69 2.592,-5.285 2.64,-5.426c-0.048,-0.048 -5.093,-1.983 -5.14,-7.787c-0.047,-4.86 3.962,-7.172 4.151,-7.315c-2.264,-3.348 -5.801,-3.725 -7.028,-3.82" style="fill-rule: nonzero"></path></g><g><path d="M75.592,30.302c6.869,0 11.652,4.735 11.652,11.628c0,6.917 -4.881,11.676 -11.823,11.676l-7.605,0l0,12.095l-5.494,-0l-0,-35.399l13.27,0Zm-7.776,18.692l6.304,0c4.785,0 7.506,-2.575 7.506,-7.04c0,-4.463 -2.722,-7.015 -7.481,-7.015l-6.329,-0l0,14.055Z" style="fill-rule: nonzero"></path><path d="M88.607,58.365c0,-4.538 3.459,-7.138 9.836,-7.53l6.844,-0.417l0,-1.963c0,-2.869 -1.888,-4.44 -5.249,-4.44c-2.772,0 -4.784,1.423 -5.2,3.605l-4.956,0c0.148,-4.586 4.465,-7.922 10.303,-7.922c6.28,0 10.376,3.287 10.376,8.39l0,17.612l-5.077,-0l0,-4.244l-0.122,0c-1.448,2.772 -4.638,4.513 -8.096,4.513c-5.102,-0 -8.659,-3.041 -8.659,-7.604Zm16.68,-2.28l0,-1.988l-6.108,0.393c-3.435,0.221 -5.224,1.495 -5.224,3.727c0,2.16 1.864,3.558 4.783,3.558c3.727,0 6.549,-2.38 6.549,-5.69Z" style="fill-rule: nonzero"></path><path d="M115.23,75.168l-0,-4.243c0.343,0.048 1.177,0.098 1.618,0.098c2.429,-0 3.803,-1.029 4.637,-3.68l0.491,-1.569l-9.298,-25.757l5.74,-0l6.477,20.899l0.122,0l6.476,-20.899l5.593,-0l-9.641,27.056c-2.208,6.207 -4.734,8.243 -10.081,8.243c-0.417,0 -1.767,-0.049 -2.134,-0.148Z" style="fill-rule: nonzero"></path></g></g></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-diners-club-title" role="img"><title id="icon-diners-club-title">Diners Club Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><path d="M50,34.583l0,30.834c0,1.25 -0.833,1.25 -2.083,0.833c-7.917,-3.333 -12.5,-13.75 -9.584,-22.5c1.667,-4.583 5,-8.333 9.584,-10c1.666,-0.833 2.083,-0.417 2.083,0.833Zm8.333,30.834l0,-30.834c0,-1.25 0,-1.25 1.25,-0.833c8.75,3.333 13.334,13.75 10,22.5c-1.666,4.583 -5,8.333 -9.583,10c-1.667,0.833 -1.667,0.417 -1.667,-0.833Zm30,-44.584l-34.166,0c15.833,0 28.333,12.917 28.333,29.167c0,16.25 -12.5,29.167 -28.333,29.167l34.166,-0c15.834,-0 28.334,-12.917 28.334,-29.167c-0,-16.25 -12.5,-29.167 -28.334,-29.167Z" style="fill: #3086c8; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-discover-title" role="img"><title id="icon-discover-title">Discover Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0Z" style="fill: #fff; fill-rule: nonzero"></path><path d="M14.875,29.833l-6.542,0l0,22.917l6.542,0c3.458,0 5.958,-0.833 8.167,-2.625c2.625,-2.167 4.166,-5.417 4.166,-8.792c-0.041,-6.791 -5.083,-11.5 -12.333,-11.5Zm5.25,17.25c-1.417,1.25 -3.208,1.834 -6.125,1.834l-1.208,-0l-0,-15.167l1.208,0c2.875,0 4.625,0.5 6.125,1.833c1.542,1.375 2.458,3.5 2.458,5.709c0,2.208 -0.916,4.416 -2.458,5.791Zm9.125,-17.25l4.458,0l0,22.917l-4.458,0l0,-22.917Zm15.375,8.792c-2.667,-1 -3.458,-1.667 -3.458,-2.875c-0,-1.458 1.416,-2.542 3.333,-2.542c1.333,0 2.458,0.542 3.583,1.875l2.334,-3.041c-1.917,-1.667 -4.209,-2.542 -6.75,-2.542c-4.042,0 -7.167,2.833 -7.167,6.583c0,3.167 1.458,4.792 5.625,6.292c1.75,0.625 2.625,1.042 3.083,1.292c0.875,0.583 1.334,1.416 1.334,2.375c-0,1.875 -1.459,3.25 -3.459,3.25c-2.125,-0 -3.833,-1.084 -4.875,-3.042l-2.875,2.792c2.042,3.041 4.542,4.375 7.917,4.375c4.625,-0 7.917,-3.084 7.917,-7.542c0.083,-3.708 -1.459,-5.375 -6.542,-7.25Zm8,2.708c0,6.75 5.292,11.959 12.083,11.959c1.917,-0 3.584,-0.375 5.584,-1.334l-0,-5.25c-1.792,1.792 -3.375,2.5 -5.375,2.5c-4.5,0 -7.709,-3.25 -7.709,-7.916c0,-4.417 3.292,-7.875 7.5,-7.875c2.125,-0 3.75,0.75 5.584,2.583l-0,-5.25c-1.959,-1 -3.584,-1.417 -5.5,-1.417c-6.709,0 -12.167,5.334 -12.167,12Zm53.167,3.917l-6.125,-15.417l-4.875,0l9.708,23.5l2.417,0l9.875,-23.5l-4.834,0l-6.166,15.417Zm13.041,7.5l12.667,0l0,-3.875l-8.208,0l-0,-6.167l7.916,0l0,-3.875l-7.916,0l-0,-5.083l8.208,0l0,-3.917l-12.667,0l0,22.917Zm30.375,-16.125c0,-4.292 -2.958,-6.75 -8.125,-6.75l-6.625,0l0,22.917l4.459,-0l-0,-9.209l0.583,0l6.167,9.209l5.5,-0l-7.209,-9.667c3.375,-0.708 5.25,-3 5.25,-6.5Zm-9,3.792l-1.291,-0l-0,-6.959l1.375,0c2.791,0 4.291,1.167 4.291,3.417c0,2.292 -1.5,3.542 -4.375,3.542Z" style="fill: #231f20; fill-rule: nonzero"></path><path d="M84,53.583c6.7,0 12.213,-5.513 12.213,-12.212c-0,-6.7 -5.513,-12.213 -12.213,-12.213c-6.7,0 -12.212,5.513 -12.212,12.213c-0,6.699 5.512,12.212 12.212,12.212Z" style="fill: url(#_Linear1); fill-rule: nonzero"></path><path d="M84,53.583c6.7,0 12.213,-5.513 12.213,-12.212c-0,-6.7 -5.513,-12.213 -12.213,-12.213c-6.7,0 -12.212,5.513 -12.212,12.213c-0,6.699 5.512,12.212 12.212,12.212Z" style="fill: url(#_Linear2); fill-rule: nonzero"></path><path d="M152.375,31.275c0,-0.417 -0.292,-0.625 -0.75,-0.625l-0.667,0l0,2l0.5,0l0,-0.792l0.584,0.792l0.583,0l-0.667,-0.833c0.25,-0.042 0.417,-0.25 0.417,-0.542Zm-0.833,0.292l-0.084,-0l0,-0.542l0.084,0c0.25,0 0.375,0.083 0.375,0.25c-0,0.208 -0.125,0.292 -0.375,0.292Z" style="fill: #231f20; fill-rule: nonzero"></path><path d="M151.708,29.9c-0.958,0 -1.75,0.792 -1.75,1.75c0,0.958 0.792,1.75 1.75,1.75c0.959,0 1.75,-0.792 1.75,-1.75c0,-0.958 -0.791,-1.75 -1.75,-1.75Zm0,3.208c-0.75,0 -1.416,-0.625 -1.416,-1.458c-0,-0.792 0.625,-1.458 1.416,-1.458c0.75,-0 1.375,0.666 1.375,1.458c0,0.792 -0.625,1.458 -1.375,1.458Z" style="fill: #231f20; fill-rule: nonzero"></path><path d="M154.167,54.1c-0,0 -41.292,28.704 -116.767,41.733l108.429,0c4.547,0 8.297,-3.72 8.334,-8.266l0.1,-12.584l-0.096,-20.879l-0,-0.004Z" style="fill: #f48120; fill-rule: nonzero"></path><defs><linearGradient id="_Linear1" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-8.4375,-13.2125,13.2125,-8.4375,90.2375,51.1458)"><stop offset="0" style="stop-color: #f89f20; stop-opacity: 1"></stop><stop offset="0.25" style="stop-color: #f79a20; stop-opacity: 1"></stop><stop offset="0.53" style="stop-color: #f68d20; stop-opacity: 1"></stop><stop offset="0.62" style="stop-color: #f58720; stop-opacity: 1"></stop><stop offset="0.72" style="stop-color: #f48120; stop-opacity: 1"></stop><stop offset="1" style="stop-color: #f37521; stop-opacity: 1"></stop></linearGradient><linearGradient id="_Linear2" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(-12.3333,-24.1083,24.1083,-12.3333,88.9083,50.9667)"><stop offset="0" style="stop-color: #f58720; stop-opacity: 0.65"></stop><stop offset="0.36" style="stop-color: #e16f27; stop-opacity: 0.65"></stop><stop offset="0.7" style="stop-color: #d4602c; stop-opacity: 0.65"></stop><stop offset="0.98" style="stop-color: #d05b2e; stop-opacity: 0.65"></stop><stop offset="1" style="stop-color: #d05b2e; stop-opacity: 0.65"></stop></linearGradient></defs></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-google-pay-title" role="img"><title id="con-google-pay-title">Google Pay Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><path d="M75.388,49.9l-0.001,13.333l-4.241,0l-0,-32.916l11.212,-0c2.713,-0.046 5.334,0.992 7.279,2.883c1.925,1.796 3.019,4.313 3.019,6.946c0,2.408 -0.916,4.728 -2.56,6.487l-0.459,0.484c-1.958,1.862 -4.575,2.875 -7.279,2.808l-6.971,-0.025Zm0.001,-15.55l-0.001,11.617l7.076,-0c1.57,0.05 3.087,-0.563 4.187,-1.684c1.035,-1.079 1.614,-2.517 1.614,-4.012c-0,-3.18 -2.617,-5.796 -5.796,-5.796c-0.002,-0 -0.004,-0 -0.005,0l-7.075,-0.125Zm27.016,5.617c2.709,-0.125 5.359,0.783 7.409,2.554c1.854,1.791 2.841,4.291 2.708,6.871l-0,13.891l-4.038,0l0,-3.191l-0.204,-0c-1.471,2.432 -4.128,3.911 -6.971,3.879c-2.283,0.074 -4.511,-0.72 -6.233,-2.221c-1.653,-1.348 -2.595,-3.385 -2.554,-5.517c-0.098,-2.157 0.855,-4.233 2.554,-5.566c2.056,-1.479 4.545,-2.234 7.075,-2.146c2.154,-0.084 4.292,0.387 6.208,1.379l0,-0.867c0.029,-1.451 -0.613,-2.837 -1.737,-3.754c-1.115,-1.013 -2.577,-1.562 -4.084,-1.533c-2.222,-0.021 -4.304,1.111 -5.495,2.987l-3.73,-2.35c2.057,-2.946 5.505,-4.621 9.092,-4.416Zm-5.362,16.366c-0.021,1.095 0.507,2.131 1.404,2.759c0.929,0.733 2.083,1.121 3.271,1.096c1.787,-0.005 3.5,-0.709 4.775,-1.967c1.27,-1.192 1.991,-2.854 1.991,-4.596c-1.603,-1.14 -3.553,-1.691 -5.516,-1.558c-1.525,-0.06 -3.029,0.369 -4.292,1.225c-1.015,0.679 -1.628,1.82 -1.633,3.041Zm38.691,-15.625l-14.125,32.459l-4.366,-0l5.337,-11.367l-9.267,-21.092l4.596,0l6.717,16.188l6.537,-16.188l4.571,0Z" style="fill: #5f6368; fill-rule: nonzero"></path><path d="M58.275,47.017c0,-1.284 -0.1,-2.567 -0.304,-3.834l-17.875,0l-0,7.28l10.212,-0c-0.42,2.336 -1.775,4.403 -3.75,5.72l0,4.725l6.1,0c3.749,-3.627 5.791,-8.678 5.617,-13.891Z" style="fill: #4285f4; fill-rule: nonzero"></path><path d="M40.121,65.504c4.608,0.127 9.095,-1.509 12.542,-4.571l-6.109,-4.75c-1.847,1.184 -3.995,1.814 -6.189,1.814c-4.913,0 -9.304,-3.157 -10.869,-7.814l-6.259,0l0,4.875c3.19,6.39 9.743,10.444 16.884,10.446Z" style="fill: #34a853; fill-rule: nonzero"></path><path d="M29.496,50.208c-0.793,-2.344 -0.793,-4.885 -0,-7.229l-0,-4.875l-6.259,0c-2.703,5.332 -2.703,11.647 0.001,16.979l6.258,-4.875Z" style="fill: #fbbc04; fill-rule: nonzero"></path><path d="M40.121,35.167c2.695,-0.05 5.302,0.97 7.25,2.833l5.417,-5.388c-3.453,-3.24 -8.037,-5.009 -12.771,-4.929c-7.098,0.036 -13.599,4.072 -16.779,10.417l6.258,4.879c1.496,-4.601 5.787,-7.756 10.625,-7.812Z" style="fill: #ea4335; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-maestro-title" role="img"><title id="icon-maestro-title">Maestro Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><circle cx="62.5" cy="50" r="29.167" style="fill: #eb001b"></circle><circle cx="95.833" cy="50" r="29.167" style="fill: #00a2e5"></circle><path d="M91.667,50c-0,-10 -5,-18.75 -12.5,-23.75c-7.5,5.417 -12.5,14.167 -12.5,23.75c-0,9.583 5,18.75 12.5,23.75c7.5,-5 12.5,-13.75 12.5,-23.75Z" style="fill: #7375cf; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-mastercard-title" role="img"><title id="icon-mastercard-title">Mastercard Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><circle cx="62.5" cy="50" r="29.167" style="fill: #eb001b"></circle><circle cx="95.833" cy="50" r="29.167" style="fill: #f79e1b"></circle><path d="M91.667,50c-0,-10 -5,-18.75 -12.5,-23.75c-7.5,5.417 -12.5,14.167 -12.5,23.75c-0,9.583 5,18.75 12.5,23.75c7.5,-5 12.5,-13.75 12.5,-23.75Z" style="fill: #ff5f00; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-paypal-title" role="img"><title id="icon-paypal-title">Paypal Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><path d="M99.583,34.583c0.834,-4.166 0,-7.083 -2.5,-9.583c-2.5,-2.917 -7.083,-4.167 -12.916,-4.167l-17.084,0c-1.25,0 -2.083,0.834 -2.5,2.084l-6.25,42.083c0,0.833 0.417,1.667 1.25,1.667l11.25,-0l1.667,-14.167l7.5,-9.167l19.583,-8.75Z" style="fill: #003087; fill-rule: nonzero"></path><path d="M99.583,34.583l-0.833,0.834c-2.083,11.666 -9.167,15.833 -19.167,15.833l-4.583,0c-1.25,0 -2.083,0.833 -2.5,2.083l-2.5,16.25l-0.833,4.167c-0,0.833 0.416,1.667 1.25,1.667l8.75,-0c1.25,-0 2.083,-0.834 2.083,-1.667l0,-0.417l1.667,-10l-0,-0.416c-0,-0.834 1.25,-1.667 2.083,-1.667l1.25,-0c8.75,-0 15.417,-3.333 17.083,-13.333c0.834,-4.167 0.417,-7.5 -1.666,-10c-0.417,-2.084 -1.25,-2.917 -2.084,-3.334Z" style="fill: #3086c8; fill-rule: nonzero"></path><path d="M97.083,33.75c-0.416,-0.417 -0.833,-0.417 -1.25,-0.417c-0.416,0 -0.833,0 -1.25,-0.416c-1.25,-0.417 -2.916,-0.417 -4.583,-0.417l-12.5,0c-0.417,0 -0.833,0 -0.833,0.417c-0.834,0.416 -1.25,0.833 -1.25,1.666l-2.917,18.334l0,0.416c0,-1.25 1.25,-2.083 2.5,-2.083l5.417,0c10.416,0 17.083,-4.167 19.166,-15.833l0,-0.834c-0.416,-0.416 -1.25,-0.833 -2.083,-0.833l-0.417,0Z" style="fill: #012169; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-shop-pay-title" role="img"><title id="icon-shop-pay-title">"Shop Pay Logo"</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.834,4.167c4.583,-0 8.333,3.75 8.333,8.334l-0,74.998c-0,4.584 -3.75,8.334 -8.333,8.334l-133.338,0c-4.579,0 -8.329,-3.75 -8.329,-8.334l-0,-74.998c-0,-4.584 3.75,-8.334 8.333,-8.334l133.338,-0l-0.004,-0Z" style="fill: #5a31f4; fill-rule: nonzero"></path><path d="M38.958,47.367c-4.237,-0.93 -6.125,-1.292 -6.125,-2.938c0,-1.55 1.275,-2.325 3.834,-2.325c2.25,0 3.891,0.992 5.104,2.934c0.088,0.148 0.279,0.203 0.433,0.125l4.775,-2.434c0.111,-0.059 0.181,-0.175 0.181,-0.301c-0,-0.061 -0.016,-0.121 -0.047,-0.174c-1.98,-3.462 -5.638,-5.358 -10.459,-5.358c-6.333,-0 -10.267,3.146 -10.267,8.15c0,5.312 4.792,6.654 9.042,7.583c4.25,0.925 6.142,1.292 6.142,2.938c-0,1.65 -1.384,2.425 -4.138,2.425c-2.55,-0 -4.437,-1.175 -5.583,-3.459c-0.083,-0.161 -0.283,-0.227 -0.446,-0.145l-4.762,2.375c-0.167,0.086 -0.235,0.294 -0.15,0.462c1.891,3.833 5.766,5.988 10.945,5.988c6.596,-0 10.58,-3.092 10.58,-8.25c-0,-5.159 -4.813,-6.659 -9.054,-7.584l-0,-0.012l-0.005,-0Zm25.584,-10.471c-2.709,-0 -5.1,0.967 -6.817,2.692c-0.031,0.033 -0.075,0.052 -0.121,0.052c-0.092,-0 -0.167,-0.076 -0.167,-0.167c0,-0.003 0,-0.007 0.001,-0.01l-0,-11c-0,-0.002 -0,-0.003 -0,-0.005c-0,-0.183 -0.151,-0.333 -0.334,-0.333c0,-0 -5.979,-0 -5.979,-0c-0.183,-0 -0.333,0.15 -0.333,0.333c-0,0.003 -0,0.006 -0,0.009l-0,34.141c-0,0.003 -0,0.006 -0,0.009c-0,0.183 0.15,0.333 0.333,0.333c-0,0 5.971,0 5.971,0c0.001,0 0.003,0 0.004,0c0.183,0 0.333,-0.15 0.333,-0.333c0,-0.003 0,-0.006 0,-0.009l0,-14.975c0,-2.895 2.2,-5.112 5.163,-5.112c2.958,-0 5.108,2.171 5.108,5.112l0,14.975c0,0.003 0,0.006 0,0.009c0,0.183 0.151,0.333 0.333,0.333c0.002,0 0.003,0 0.005,0l5.971,0c0.001,0 0.002,0 0.004,0c0.183,0 0.333,-0.15 0.333,-0.333c0,-0.003 0,-0.006 0,-0.009l0,-14.975c0,-6.291 -4.087,-10.737 -9.812,-10.737l0.004,-0Zm21.929,-0.979c-3.242,-0 -6.279,1 -8.458,2.45c-0.151,0.097 -0.201,0.297 -0.113,0.454l2.633,4.533c0.059,0.105 0.171,0.17 0.291,0.17c0.059,0 0.117,-0.015 0.168,-0.045c1.653,-1.009 3.555,-1.537 5.491,-1.525c5.209,0 9.042,3.713 9.042,8.617c0,4.179 -3.067,7.271 -6.954,7.271c-3.167,-0 -5.367,-1.859 -5.367,-4.488c0,-1.504 0.634,-2.737 2.284,-3.608c0.111,-0.057 0.182,-0.172 0.182,-0.297c-0,-0.062 -0.017,-0.122 -0.049,-0.174l-2.483,-4.242c-0.082,-0.142 -0.256,-0.204 -0.409,-0.146c-3.329,1.246 -5.662,4.242 -5.662,8.267c-0,6.083 4.8,10.625 11.5,10.625c7.821,0 13.446,-5.471 13.446,-13.312c-0,-8.409 -6.542,-14.55 -15.542,-14.55Zm33.008,0.929c-3.016,-0 -5.721,1.125 -7.687,3.108c-0.109,0.113 -0.288,0.029 -0.288,-0.121l0,-2.383c0,-0.003 0,-0.006 0,-0.008c0,-0.183 -0.15,-0.334 -0.333,-0.334l-5.821,0c-0.183,0 -0.333,0.151 -0.333,0.334c-0,0.002 -0,0.005 -0,0.008l-0,34.092c-0,0.001 -0,0.002 -0,0.004c-0,0.183 0.15,0.333 0.333,0.333c-0,0 5.971,0 5.971,0c0.001,0 0.003,0 0.004,0c0.183,0 0.333,-0.15 0.333,-0.333c0,-0.002 0,-0.003 0,-0.004l0,-11.179c0,-0.15 0.18,-0.225 0.288,-0.125c2.04,1.906 4.741,2.952 7.533,2.916c7.009,0 12.471,-5.721 12.471,-13.154c0,-7.433 -5.471,-13.154 -12.471,-13.154Zm-1.129,20.537c-3.983,0 -7.004,-3.2 -7.004,-7.429c-0,-4.229 3.012,-7.429 7.004,-7.429c3.992,0 7,3.146 7,7.429c0,4.279 -2.971,7.429 -7.004,7.429l0.004,0Z" style="fill: #fff; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-unionpay-title" role="img"><title id="icon-unionpay-title">Unionpay Logo</title><path d="M4.167,87.431l-0,2.673l-0,-2.673Zm69.868,-83.264l0,91.666l-28.421,0c-5.132,0 -8.289,-3.819 -7.105,-8.784l17.368,-74.098c1.184,-4.965 7.5,-8.784 12.632,-8.784l5.526,-0Zm49.737,-0c-5.132,-0 -11.447,3.819 -12.632,8.784l-17.763,74.098c-1.184,4.965 1.974,8.784 7.105,8.784l-19.342,0l0,-91.666l42.632,-0Z" style="fill: #005b9a; fill-rule: nonzero"></path><path d="M68.509,4.167c-5.132,-0 -11.448,4.201 -12.632,8.784l-17.368,74.098c-1.184,4.965 1.973,8.784 7.105,8.784l-35.132,0c-3.157,0 -5.921,-2.291 -5.921,-5.347l0,-80.208c0,-3.056 2.764,-6.111 5.921,-6.111l58.027,-0Z" style="fill: #e9292d; fill-rule: nonzero"></path><path d="M123.772,4.167c-5.132,-0 -11.447,4.201 -12.632,8.784l-17.368,74.098c-1.184,4.965 1.974,8.784 7.105,8.784l-57.237,0l1.974,0c-5.132,0 -8.289,-3.819 -7.105,-8.784l17.368,-74.098c1.184,-4.965 7.5,-8.784 12.632,-8.784l55.263,-0Z" style="fill: #0e73b9; fill-rule: nonzero"></path><path d="M154.167,10.278l-0,80.208c-0,3.056 -2.369,5.347 -5.921,5.347l-47.764,0c-5.131,0 -8.289,-4.201 -7.105,-8.784l17.763,-74.098c1.185,-4.965 7.5,-8.784 12.632,-8.784l24.474,-0c3.552,-0 5.921,2.673 5.921,6.111Z" style="fill: #059da4; fill-rule: nonzero"></path><path d="M61.992,56.854l0.583,0c0.583,0 1.167,-0.291 1.167,-0.583l1.75,-2.625l4.958,-0l-0.875,1.458l5.833,0l-0.875,2.625l-7,0c-0.875,1.167 -1.75,1.75 -2.916,1.75l-3.5,0l0.875,-2.625m-0.875,3.792l12.541,-0l-0.875,2.917l-4.958,-0l-0.875,2.916l4.958,0l-0.875,2.917l-4.958,-0l-1.167,4.375c-0.291,0.583 0,1.167 1.167,0.875l4.083,-0l-0.875,2.917l-7.875,-0c-1.458,-0 -2.041,-0.875 -1.458,-2.625l1.458,-5.542l-3.208,-0l0.875,-2.917l3.208,0l0.875,-2.916l-2.916,-0l0.875,-2.917Zm20.125,-7.292l-0,1.75c-0,0 2.333,-1.75 4.666,-1.75l8.167,0l-3.208,11.084c-0.292,1.166 -1.459,2.041 -3.209,2.041l-9.333,0l-2.042,7.875c0,0.292 0,0.584 0.584,0.584l1.75,-0l-0.584,2.333l-4.666,-0c-1.75,-0 -2.334,-0.583 -2.042,-1.458l6.125,-22.459l3.792,0Zm7,3.209l-7.292,-0l-0.875,2.916c0,0 1.167,-0.875 3.208,-0.875l4.375,0l0.584,-2.041Zm-2.625,7c0.583,-0 0.875,-0 0.875,-0.584l0.583,-1.458l-7.292,-0l-0.583,2.333l6.417,-0.291Zm-4.959,3.5l4.084,-0l-0,1.75l1.166,-0c0.584,-0 0.875,-0.292 0.875,-0.584l0.292,-1.166l3.5,-0l-0.583,2.041c-0.292,1.459 -1.459,2.042 -3.209,2.334l-2.333,-0l0,3.208c0,0.583 0.292,0.875 1.458,0.875l2.042,-0l-0.583,2.333l-4.959,0c-1.458,0 -2.041,-0.583 -2.041,-2.041l0.291,-8.75Zm17.5,-10.209l0.875,-3.5l4.959,0l-0.292,1.167c0,-0 2.333,-1.167 4.375,-1.167l6.125,0l-0.875,3.5l-0.875,0l-4.667,16.042l0.875,-0l-0.875,3.208l-0.875,0l-0.291,1.459l-4.959,-0l0.292,-1.459l-9.042,0l0.875,-3.208l0.875,-0l4.667,-16.042l-1.167,0m5.25,0l-1.166,4.375c-0,0 2.041,-0.875 3.791,-1.166c0.292,-1.459 0.875,-3.209 0.875,-3.209l-3.5,0Zm-2.041,6.417l-1.167,4.666c0,0.001 2.333,-1.166 4.083,-1.166c0.584,-1.75 0.875,-3.209 0.875,-3.209l-3.791,-0.291Zm0.875,9.625l0.875,-3.208l-3.5,-0l-0.875,3.208l3.5,-0Zm11.958,-19.542l4.667,0l0.291,1.75c0,0.292 0.292,0.584 0.875,0.584l0.875,-0l-0.875,2.916l-3.208,0c-1.167,0 -2.042,-0.291 -2.042,-1.458l-0.583,-3.792Zm-1.458,6.125l14.875,0l-0.875,3.209l-4.959,-0l-0.875,2.916l4.667,0l-0.875,3.209l-5.25,-0l-1.167,1.75l2.625,-0l0.584,3.5c-0,0.291 0.291,0.583 0.875,0.583l0.875,-0l-0.875,2.917l-2.917,-0c-1.458,-0 -2.333,-0.292 -2.333,-1.459l-0.584,-3.208l-2.333,3.5c-0.583,0.875 -1.458,1.458 -2.625,1.458l-4.375,0l0.875,-2.916l1.458,-0c0.584,-0 0.875,-0.292 1.459,-0.875l3.5,-5.25l-4.375,-0l0.875,-3.209l4.958,0l0.875,-2.916l-4.958,-0l0.875,-3.209Zm-82.25,-21c-0.584,2.917 -1.75,4.959 -3.792,6.417c-2.042,1.458 -4.667,2.333 -7.875,2.333c-2.917,0 -5.25,-0.875 -6.417,-2.333c-0.875,-1.167 -1.458,-2.333 -1.458,-4.083c-0,-0.584 -0,-1.459 0.292,-2.334l3.5,-16.333l4.958,-0l-3.208,16.333l-0,1.167c-0,0.875 0.291,1.458 0.583,2.042c0.583,0.875 1.458,1.166 2.917,1.166c1.458,0 2.916,-0.291 3.791,-1.166c0.875,-0.875 1.75,-1.75 2.042,-3.209l3.208,-16.333l4.959,-0l-3.5,16.333m4.666,-6.416l3.5,-0l-0.291,2.041l0.583,-0.583c1.167,-1.167 2.625,-1.75 4.375,-1.75c1.458,-0 2.625,0.583 3.208,1.458c0.584,0.875 0.875,2.042 0.584,3.792l-2.042,9.917l-3.792,-0l1.75,-9.042c0.292,-1.167 0.292,-2.042 0,-2.333c-0.291,-0.584 -0.875,-0.584 -1.458,-0.584c-0.875,0 -1.75,0.292 -2.333,0.875c-0.584,0.584 -1.167,1.459 -1.167,2.625l-1.75,8.459l-3.792,-0l2.625,-14.875m40.834,-0l3.5,-0l-0.292,2.041l0.583,-0.583c1.167,-1.167 2.625,-1.75 4.375,-1.75c1.459,-0 2.625,0.583 3.209,1.458c0.583,0.875 0.875,2.042 0.583,3.792l-2.042,9.917l-3.791,-0l1.75,-9.334c0.291,-0.875 -0,-1.75 -0.292,-2.041c-0.292,-0.584 -0.875,-0.584 -1.458,-0.584c-0.875,0 -1.75,0.292 -2.334,0.875c-0.583,0.584 -1.166,1.459 -1.166,2.625l-1.75,8.459l-3.792,-0l2.917,-14.875m-24.209,-0l4.084,-0l-3.209,14.583l-4.083,-0l3.208,-14.583m1.459,-5.542l4.083,-0l-0.875,3.5l-4.083,-0l0.875,-3.5Zm5.833,18.958c-0.875,-0.875 -1.458,-2.333 -1.458,-4.083l-0,-0.875c-0,-0.292 -0,-0.875 0.291,-1.167c0.584,-2.333 1.459,-4.375 2.917,-5.541c1.458,-1.459 3.5,-2.042 5.542,-2.042c1.75,-0 3.208,0.583 4.375,1.458c0.875,0.875 1.458,2.334 1.458,4.084l0,0.875c0,0.291 0,0.875 -0.292,1.166c-0.583,2.334 -1.458,4.084 -2.916,5.542c-1.459,1.458 -3.5,2.042 -5.542,2.042c-1.458,-0 -2.917,-0.584 -4.375,-1.459m7.875,-2.916c0.583,-0.875 1.167,-2.042 1.458,-3.501l0,-1.458c0,-0.875 -0.291,-1.458 -0.583,-2.042c-0.519,-0.576 -1.266,-0.896 -2.042,-0.875c-1.166,0 -2.041,0.292 -2.625,1.167c-0.583,0.875 -1.166,2.042 -1.458,3.5l0,1.167c0,0.875 0.292,1.458 0.583,2.042c0.584,0.583 1.167,0.875 2.042,0.875c1.167,0.291 1.75,-0 2.625,-0.875m27.125,-19.542l10.5,-0c2.042,-0 3.5,0.583 4.667,1.458c1.166,0.875 1.458,2.334 1.458,3.792l0,1.167c0,0.291 0,0.875 -0.292,1.166c-0.291,2.042 -1.458,4.084 -2.916,5.25c-1.75,1.459 -3.5,2.042 -5.834,2.042l-5.833,-0l-1.75,8.458l-4.958,0l4.958,-23.333m2.333,10.792l4.667,-0c1.167,-0 2.042,-0.292 2.917,-0.875c0.583,-0.584 1.166,-1.459 1.458,-2.625l0,-1.167c0,-0.875 -0.292,-1.458 -0.875,-1.75c-0.583,-0.292 -1.458,-0.583 -2.917,-0.583l-3.791,-0l-1.459,7Zm36.167,15.458c-1.458,3.208 -2.917,5.25 -3.792,6.125c-0.875,0.875 -2.625,2.917 -6.708,2.917l0.292,-2.625c3.5,-1.167 5.25,-5.834 6.416,-8.167l-1.166,-15.75l4.958,-0l0.292,9.917l3.791,-9.625l4.375,-0l-8.458,17.208m-12.25,-16.042l-1.75,1.167c-1.75,-1.458 -3.5,-2.333 -6.417,-0.875c-4.083,2.042 -7.875,17.208 3.792,12.25l0.583,0.875l4.667,-0l2.917,-13.708l-3.792,0.291m-2.333,7.584c-0.875,2.333 -2.334,3.5 -3.792,3.208c-1.167,-0.583 -1.458,-2.625 -0.875,-4.958c0.875,-2.334 2.333,-3.5 3.792,-3.209c1.166,0.584 1.458,2.625 0.875,4.959" style="fill: #fff; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 159 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-visa-title" role="img"><title id="icon-visa-title">Visa Logo</title><path d="M145.833,0l-133.333,0c-7.083,0 -12.5,5.417 -12.5,12.5l0,75c0,7.083 5.833,12.5 12.5,12.5l133.333,0c7.084,0 12.5,-5.417 12.5,-12.5l0,-75c0,-7.083 -5.833,-12.5 -12.5,-12.5Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M145.833,4.167c4.584,-0 8.334,3.75 8.334,8.333l-0,75c-0,4.583 -3.75,8.333 -8.334,8.333l-133.333,0c-4.583,0 -8.333,-3.75 -8.333,-8.333l-0,-75c-0,-4.583 3.75,-8.333 8.333,-8.333l133.333,-0" style="fill: #fff; fill-rule: nonzero"></path><path d="M117.917,42.083l-1.25,0c-1.667,4.167 -2.917,6.25 -4.167,12.5l7.917,0c-1.25,-6.25 -1.25,-9.166 -2.5,-12.5Zm12.083,24.584l-7.083,-0c-0.417,-0 -0.417,-0 -0.834,-0.417l-0.833,-3.75l-0.417,-0.833l-10,-0c-0.416,-0 -0.833,-0 -0.833,0.833l-1.25,3.75c0,0.417 -0.417,0.417 -0.417,0.417l-8.75,-0l0.834,-2.084l12.083,-28.333c0,-2.083 1.25,-2.917 3.333,-2.917l6.25,0c0.417,0 0.834,0 0.834,0.834l5.833,27.083c0.417,1.667 0.833,2.917 0.833,4.583c0.417,0.417 0.417,0.417 0.417,0.834Zm-55.833,-1.25l1.666,-7.5c0.417,-0 0.834,0.416 0.834,0.416c2.916,1.25 5.833,2.084 8.75,1.667c0.833,0 2.083,-0.417 2.916,-0.833c2.084,-0.834 2.084,-2.917 0.417,-4.584c-0.833,-0.833 -2.083,-1.25 -3.333,-2.083c-1.667,-0.833 -3.334,-1.667 -4.584,-2.917c-5,-4.166 -3.333,-10 -0.416,-12.916c2.5,-1.667 3.75,-3.334 7.083,-3.334c5,0 10.417,0 12.917,0.834l0.416,-0c-0.416,2.5 -0.833,4.583 -1.666,7.083c-2.084,-0.833 -4.167,-1.667 -6.25,-1.667c-1.25,0 -2.5,0 -3.75,0.417c-0.834,-0 -1.25,0.417 -1.667,0.833c-0.833,0.834 -0.833,2.084 0,2.917l2.083,1.667c1.667,0.833 3.334,1.666 4.584,2.5c2.083,1.25 4.166,3.333 4.583,5.833c0.833,3.75 -0.417,7.083 -3.75,9.583c-2.083,1.667 -2.917,2.5 -5.833,2.5c-5.834,0 -10.417,0.417 -14.167,-0.833c-0.417,0.833 -0.417,0.833 -0.833,0.417Zm-14.584,1.25c0.417,-2.917 0.417,-2.917 0.834,-4.167c2.083,-9.167 4.166,-18.75 5.833,-27.917c0.417,-0.833 0.417,-1.25 1.25,-1.25l7.5,0c-0.833,5 -1.667,8.75 -2.917,13.334c-1.25,6.25 -2.5,12.5 -4.166,18.75c-0,0.833 -0.417,0.833 -1.25,0.833m-45.834,-32.083c0,-0.417 0.834,-0.834 1.25,-0.834l14.167,0c2.083,0 3.75,1.25 4.167,3.334l3.75,18.333c-0,0.417 -0,0.417 0.416,0.833c0,-0.416 0.417,-0.416 0.417,-0.416l8.75,-21.25c-0.417,-0.417 0,-0.834 0.417,-0.834l8.75,0c-0,0.417 -0,0.417 -0.417,0.834l-12.917,30.416c-0.416,0.834 -0.416,1.25 -0.833,1.667c-0.417,0.417 -1.25,0 -2.083,0l-6.25,0c-0.417,0 -0.834,0 -0.834,-0.833l-6.666,-25.834c-0.834,-0.833 -2.084,-2.083 -3.75,-2.5c-2.5,-1.25 -7.084,-2.083 -7.917,-2.083l-0.417,-0.833Z" style="fill: #142688; fill-rule: nonzero"></path></svg></li>
+            <li class="list-payment__item"><svg width="100%" height="100%" viewBox="0 0 659 417" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule: evenodd; clip-rule: evenodd; stroke-linejoin: round; stroke-miterlimit: 2" aria-labelledby="icon-klarna-title" role="img"><title id="icon-klarna-title">Klarna Logo</title><path d="M607.638,0l-555.555,0c-29.512,0 -52.083,22.571 -52.083,52.083l0,312.5c0,29.513 24.304,52.084 52.083,52.084l555.555,-0c29.516,-0 52.083,-22.571 52.083,-52.084l-0,-312.5c-0,-29.512 -24.304,-52.083 -52.083,-52.083Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M607.638,0l-555.555,0c-29.512,0 -52.083,22.571 -52.083,52.083l0,312.5c0,29.513 24.304,52.084 52.083,52.084l555.555,-0c29.516,-0 52.083,-22.571 52.083,-52.084l-0,-312.5c-0,-29.512 -24.304,-52.083 -52.083,-52.083Z" style="fill-opacity: 0.07; fill-rule: nonzero"></path><path d="M607.048,17.363c19.125,-0 34.771,15.625 34.771,34.72l0,312.5c0,19.096 -15.646,34.721 -34.771,34.721l-556.293,0c-19.122,0 -34.767,-15.625 -34.767,-34.721l-0,-312.5c-0,-19.095 15.645,-34.72 34.767,-34.72l556.293,-0" style="fill: #ffb3c7; fill-rule: nonzero"></path><g><g><path d="M580.699,232.531c-8.39,-0 -15.187,5.742 -15.187,12.83c-0,7.085 6.797,12.83 15.187,12.83c8.386,-0 15.186,-5.745 15.186,-12.83c0,-7.088 -6.8,-12.83 -15.186,-12.83Zm-49.965,-9.922c0,-9.701 -9.815,-17.562 -21.922,-17.562c-12.11,0 -21.925,7.861 -21.925,17.562c-0,9.704 9.815,17.568 21.925,17.568c12.107,-0 21.922,-7.864 21.922,-17.568Zm0.079,-34.136l24.196,-0l-0,68.272l-24.196,0l0,-4.362c-6.834,3.939 -15.084,6.255 -23.984,6.255c-23.549,-0 -42.641,-16.131 -42.641,-36.029c0,-19.898 19.092,-36.026 42.641,-36.026c8.9,0 17.15,2.316 23.984,6.255l0,-4.365Zm-193.624,8.894l0,-8.894l-24.77,-0l0,68.272l24.825,0l-0,-31.875c-0,-10.754 13.799,-16.534 23.372,-16.534c0.099,0 0.188,0.006 0.287,0.009l-0,-19.867c-9.826,0 -18.862,3.553 -23.714,8.889Zm-61.705,25.245c0,-9.704 -9.815,-17.565 -21.925,-17.565c-12.107,0 -21.922,7.864 -21.922,17.565c-0,9.701 9.815,17.565 21.922,17.565c12.11,-0 21.925,-7.864 21.925,-17.565Zm0.079,-34.139l24.196,-0l-0,68.275l-24.196,0l0,-4.365c-6.834,3.939 -15.084,6.255 -23.984,6.255c-23.549,-0 -42.64,-16.131 -42.64,-36.029c-0,-19.895 19.091,-36.026 42.64,-36.026c8.9,0 17.15,2.316 23.984,6.255l0,-4.365Zm145.633,-1.838c-9.666,-0 -18.811,2.536 -24.928,9.529l0,-7.688l-24.09,-0l0,68.272l24.384,0l0,-35.879c0,-10.383 8.243,-15.467 18.165,-15.467c10.633,0 16.746,5.367 16.746,15.326l-0,36.02l24.168,0l0,-43.417c0,-15.89 -14.954,-26.693 -34.445,-26.693l-0,-0.003Zm-247.503,70.113l25.324,0l-0,-98.702l-25.324,0l-0,98.702Zm-111.245,0.026l26.818,-0l-0,-98.745l-26.818,0l-0,98.745Zm93.795,-98.745c-0,21.378 -9.861,41.264 -27.434,56.047l37.068,42.704l-33.119,-0.003l-40.285,-46.408l10.397,-6.579c17.241,-10.912 27.129,-27.589 27.129,-45.761l26.244,0Z" style="fill: #0a0b09"></path></g></g></svg></li>
+          
+          </ul>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+    <div class="footer__content-bottom-wrapper page-width{% if section.settings.enable_country_selector == false and section.settings.enable_language_selector == false %} footer__content-bottom-wrapper--center{% endif %}">
+      <div class="footer__copyright caption">
+        <small class="copyright__content"
+          >&copy; {{ 'now' | date: '%Y' }}, {{ shop.name | link_to: routes.root_url -}}
+        </small>
+        <small class="copyright__content">{{ powered_by_link }}</small>
+        {%- if section.settings.show_policy -%}
+          <ul class="policies list-unstyled">
+            {%- for policy in shop.policies -%}
+              {%- if policy != blank -%}
+                <li>
+                  <small class="copyright__content"
+                    ><a href="{{ policy.url }}">{{ policy.title | escape }}</a></small
+                  >
+                </li>
+              {%- endif -%}
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "t:sections.footer.name",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "link_list",
+      "name": "t:sections.footer.blocks.link_list.name",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "t:sections.footer.blocks.link_list.settings.heading.default",
+          "label": "t:sections.footer.blocks.link_list.settings.heading.label"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "default": "footer",
+          "label": "t:sections.footer.blocks.link_list.settings.menu.label"
+        }
+      ]
+    },
+    {
+      "type": "brand_information",
+      "name": "t:sections.footer.blocks.brand_information.name",
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.footer.blocks.brand_information.settings.paragraph.content"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_social",
+          "default": true,
+          "label": "t:sections.footer.blocks.brand_information.settings.show_social.label",
+          "info": "t:sections.footer.blocks.brand_information.settings.show_social.info"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.footer.blocks.text.name",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "t:sections.footer.blocks.text.settings.heading.default",
+          "label": "t:sections.footer.blocks.text.settings.heading.label"
+        },
+        {
+          "type": "richtext",
+          "id": "subtext",
+          "default": "t:sections.footer.blocks.text.settings.subtext.default",
+          "label": "t:sections.footer.blocks.text.settings.subtext.label"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "Image",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "min": 50,
+          "max": 550,
+          "step": 5,
+          "unit": "px",
+          "label": "Width",
+          "default": 100
+        },
+        {
+          "type": "select",
+          "id": "alignment",
+          "label": "Alignment",
+          "options": [
+            {
+              "value": "",
+              "label": "Left"
+            },
+            {
+              "value": "center",
+              "label": "Center"
+            },
+            {
+              "value": "right",
+              "label": "Right"
+            }
+          ],
+          "default": "center"
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__1.content",
+      "info": "t:sections.footer.settings.header__1.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "newsletter_enable",
+      "default": true,
+      "label": "t:sections.footer.settings.newsletter_enable.label"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "newsletter_heading",
+      "default": "t:sections.footer.settings.newsletter_heading.default",
+      "label": "t:sections.footer.settings.newsletter_heading.label"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "newsletter_subheading",
+      "default": "t:sections.footer.settings.newsletter_heading.default",
+      "label": "Newsletter subheading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "newsletter_pheading",
+      "default": "t:sections.footer.settings.newsletter_heading.default",
+      "label": "Newsletter paragraph"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.footer.settings.header__9.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_follow_on_shop",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_follow_on_shop.label",
+      "info": "t:sections.footer.settings.enable_follow_on_shop.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social",
+      "default": true,
+      "label": "t:sections.footer.settings.show_social.label",
+      "info": "t:sections.footer.settings.show_social.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_country_selector",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_country_selector.label",
+      "info": "t:sections.footer.settings.enable_country_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_language_selector",
+      "default": true,
+      "label": "t:sections.footer.settings.enable_language_selector.label",
+      "info": "t:sections.footer.settings.enable_language_selector.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "payment_enable",
+      "default": true,
+      "label": "t:sections.footer.settings.payment_enable.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_policy",
+      "default": true,
+      "label": "t:sections.footer.settings.show_policy.label",
+      "info": "t:sections.footer.settings.show_policy.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.spacing"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.footer.settings.margin_top.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "link_list"
+      },
+      {
+        "type": "text"
+      }
+    ]
+  }
+}
+{% endschema %}
+
+
+<script src="{{ 'footer_menu_toggle.js' | asset_url }}" defer="defer"></script>

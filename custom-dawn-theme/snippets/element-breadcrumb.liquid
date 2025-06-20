@@ -1,0 +1,103 @@
+{%- unless template == 'index' -%}
+  <nav class="breadcrumbs --align-left" aria-label="Gezinti Yolu">
+    <ol class="breadcrumbs_list list-unstyled">
+      <li class="breadcrumbs_item">
+        <a class="breadcrumbs_link" href="{{ routes.root_url }}">
+          <span class="text">Anasayfa</span>
+        </a>
+      </li>
+
+      {%- case template | split: '.' | first -%}
+        {%- when 'product' -%}
+          {%- comment -%} Metaobject referansını çekiyoruz {%- endcomment -%}
+          {%- assign brand = product.metafields.ecom.marka.reference -%}
+          {%- if brand -%}
+            <li class="breadcrumbs_item">
+              <a class="breadcrumbs_link" href="{{ brand.url.value }}">
+                <span class="text">{{ brand.marka.value }}</span>
+              </a>
+            </li>
+          {%- elsif collection or product.collections.first -%}
+            {%- assign current_collection = collection | default: product.collections.first -%}
+            <li class="breadcrumbs_item">
+              <a class="breadcrumbs_link" href="{{ current_collection.url }}">
+                <span class="text">{{ current_collection.title }}</span>
+              </a>
+            </li>
+          {%- endif -%}
+          <li class="breadcrumbs_item">
+            <span class="breadcrumbs_link" aria-current="page">
+              {{ product.title }}
+            </span>
+          </li>
+
+        {%- when 'collection' and collection.handle -%}
+          {%- if current_tags -%}
+            <li class="breadcrumbs_item">
+              <span class="text">{{ collection.title | link_to: collection.url }}</span>
+            </li>
+            <li class="breadcrumbs_item">
+              <span class="breadcrumbs_link" aria-current="page">{{ current_tags | join: " + " }}</span>
+            </li>
+          {%- else -%}
+            <li class="breadcrumbs_item">
+              <span class="breadcrumbs_link" aria-current="page">{{ collection.title }}</span>
+            </li>
+          {%- endif -%}
+
+        {%- when 'page' -%}
+          <li class="breadcrumbs__item">
+            <span class="breadcrumbs_link" aria-current="page">{{ page.title }}</span>
+          </li>
+
+        {%- when 'blog' -%}
+          <!-- blog mantığı buraya -->
+        {%- if current_tags -%}
+          <li class="breadcrumbs_item">
+          <a class="breadcrumbs_link" href="{{ blog.url }}" aria-current="page">
+            <span class="text">{{ blog.title }}</span>
+          </a>
+          </li>
+          <li class="breadcrumbs_item">
+            {%- capture tag_url -%}{{blog.url}}/tagged/{{ current_tags | join: "+" }}{%- endcapture -%}
+            <a class="breadcrumbs_link" href="{{ tag_url }}" aria-current="page">
+              <span class="text">
+             {{ current_tags | join: " + " }}
+              </span>
+          </a>
+          </li>
+        {%- else -%}
+          <li class="breadcrumbs_item">
+            <a class="breadcrumbs_link" href="{{ blog.url }}" aria-current="page">
+              <span class="text">
+               {{ blog.title }}
+              </span>
+          </a>
+          </li>
+        {%- endif -%}
+        
+        {%- when 'article' -%}
+        <li class="breadcrumbs_item">
+        <a class="breadcrumbs_link" href="{{ blog.url }}" aria-current="page">
+          <span class="text">
+           {{ blog.title }}
+          </span>
+        </a>
+        </li>
+        <li class="breadcrumbs_item">
+          <a class="breadcrumbs_link" href="{{ article.url }}" aria-current="page">
+            <span class="text">
+            {{ article.title }}
+            </span>
+        </a>
+        </li>
+        {%- else -%}
+          <li class="breadcrumbs_item">
+            <span class="breadcrumbs_link" aria-current="page">{{ page_title }}</span>
+          </li>
+      {%- endcase -%}
+    </ol>
+  </nav>
+{%- endunless -%}
+
+ {{ 'breadcrumbs.css' | asset_url | stylesheet_tag }}

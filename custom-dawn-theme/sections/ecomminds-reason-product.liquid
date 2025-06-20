@@ -1,0 +1,215 @@
+{{ "reasons-section.css"|asset_url|stylesheet_tag }}
+<script src="{{ "reasons-section.js"|asset_url }}" defer="defer"></script>
+
+{% if product.metafields.meta.reason %}
+  {% assign reason = product.metafields.meta.reason.value %}
+
+  <section class="reasons-section page-width" id="product-reason">
+    <div class="reasons-container-new">
+
+      {% if reason.mainheadline != blank %}
+        <h2 class="reasons-title">{{ reason.mainheadline }}</h2>
+      {% endif %}
+     <ecomminds-reasons-section-slider class="ecomminds-reasons-section-slider">
+          <div class="slider-container-new swiper wrssSwiper">
+    
+            <!-- <button class="slider-prev">
+              <img src="{{ 'ecom-sol.svg' | asset_url }}" alt="Önceki" width="100%" height="100%">
+            </button> -->
+    
+            <div class="reason-items-wrapper-new swiper-wrapper">
+              {% if reason.image1 or reason.image1headline or reason.imag1text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image1 %}
+                      <img 
+                        src="{{ reason.image1 | img_url: 'master' }}"
+                        alt="{{ reason.image1headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image1headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image1headline }}</h4>
+                  {% endif %}
+                  {% if reason.imag1text != blank %}
+                    <p class="reason-item-text">{{ reason.imag1text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image2 or reason.image2headline or reason.image2text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image2 %}
+                      <img 
+                        src="{{ reason.image2 | img_url: 'master' }}"
+                        alt="{{ reason.image2headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image2headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image2headline }}</h4>
+                  {% endif %}
+                  {% if reason.image2text != blank %}
+                    <p class="reason-item-text">{{ reason.image2text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image3 or reason.image3headline or reason.image3text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image3 %}
+                      <img 
+                        src="{{ reason.image3 | img_url: 'master' }}"
+                        alt="{{ reason.image3headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image3headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image3headline }}</h4>
+                  {% endif %}
+                  {% if reason.image3text != blank %}
+                    <p class="reason-item-text">{{ reason.image3text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image4 or reason.image4headline or reason.image4text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image4 %}
+                      <img 
+                        src="{{ reason.image4 | img_url: 'master' }}"
+                        alt="{{ reason.image4headline | escape }}"
+                       width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image4headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image4headline }}</h4>
+                  {% endif %}
+                  {% if reason.image4text != blank %}
+                    <p class="reason-item-text">{{ reason.image4text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image5 or reason.image5headline or reason.image5text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image5 %}
+                      <img 
+                        src="{{ reason.image5 | img_url: 'master' }}"
+                        alt="{{ reason.image5headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image5headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image5headline }}</h4>
+                  {% endif %}
+                  {% if reason.image5text != blank %}
+                    <p class="reason-item-text">{{ reason.image5text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image6 or reason.image6headline or reason.image6text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image6 %}
+                      <img 
+                        src="{{ reason.image6 | img_url: 'master' }}"
+                        alt="{{ reason.image6headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image6headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image6headline }}</h4>
+                  {% endif %}
+                  {% if reason.image6text != blank %}
+                    <p class="reason-item-text">{{ reason.image6text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image7 or reason.image7headline or reason.image7text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image7 %}
+                      <img 
+                        src="{{ reason.image7 | img_url: 'master' }}"
+                        alt="{{ reason.image7headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image7headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image7headline }}</h4>
+                  {% endif %}
+                  {% if reason.image7text != blank %}
+                    <p class="reason-item-text">{{ reason.image7text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+    
+              {% if reason.image8 or reason.image8headline or reason.image8text %}
+                <div class="reason-item-new swiper-slide">
+                  <div class="reason-icon">
+                    {% if reason.image8 %}
+                      <img 
+                        src="{{ reason.image8 | img_url: 'master' }}"
+                        alt="{{ reason.image8headline | escape }}"
+                        width="800"
+                        height="100%"
+                      >
+                    {% endif %}
+                  </div>
+                  {% if reason.image8headline != blank %}
+                    <h4 class="reason-item-title">{{ reason.image8headline }}</h4>
+                  {% endif %}
+                  {% if reason.image8text != blank %}
+                    <p class="reason-item-text">{{ reason.image8text }}</p>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+    
+           
+            <!-- <button class="slider-next">
+              <img src="{{ 'ecom-sag.svg' | asset_url }}" alt="Sonraki" width="100%" height="100%">
+            </button> -->
+          </div>
+       </ecomminds-reasons-section-slider>
+    </div>
+  </section>
+{% endif %}
+
+
+
+
+
+{% schema %}
+{
+  "name": "Product Reason Section",
+  "settings": [],
+  "blocks": [],
+  "presets": [
+    {
+      "name": "Product Reason Section"
+    }
+  ]
+}
+{% endschema %}

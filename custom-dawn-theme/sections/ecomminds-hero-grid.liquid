@@ -1,0 +1,114 @@
+{{ "ecomminds-hero-grid.css"|asset_url|stylesheet_tag }}
+<div class="ecomminds-hero-three-grid" id="e-hero-three-grid-{{ section.id }}">
+<section class="grid-3-banner">
+  <div class="grid-3-banner__wrapper">
+    {% assign banners = section.blocks | slice: 0, 3 %}
+
+    {% for block in banners %}
+      {% assign idx         = forloop.index0 %}
+      {% assign desktop_img = block.settings.image %}
+      {% assign mobile_img  = block.settings.imagem %}
+      {% assign url         = block.settings.link %}
+     
+      <div class="grid-3-banner__item grid-3-banner__item--{{ idx }}">
+        <a href="{{ url | escape }}">
+          {% if desktop_img %}
+            <img
+              src="{{ desktop_img | image_url: width: 900 }}"
+              alt="banner-image"
+              width="{{ desktop_img.width }}"
+              height="{{ desktop_img.height }}"
+              class="grid-3-banner__img desktop_banner_m"
+              {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+          {% endif %}
+
+          {% if mobile_img %}
+            <img
+              src="{{ mobile_img | image_url: width: 400 }}"
+              alt="banner-image"
+              width="{{ mobile_img.width }}"
+              height="{{ mobile_img.height }}"
+              class="grid-3-banner__img mobile_banner_m"
+              {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}>
+          {% endif %}
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+</div>
+{% schema %}
+{
+  "name": "EcomMinds 3 Grid",
+  "settings": [
+    {
+      "type": "range",
+      "id": "s_padding_top",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Section padding top",
+      "default": 10
+    },
+    {
+      "type": "range",
+      "id": "s_padding_bottom",
+      "min": 0,
+      "max": 50,
+      "step": 1,
+      "unit": "px",
+      "label": "Section padding bottom",
+      "default": 10
+    },
+   {
+    "type": "color_background",
+    "id": "background",
+    "label": "Background",
+    "default": "linear-gradient(#ffffff, #000000)"
+  }
+  ],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "Banner",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Görsel (masaüstü için)"
+        },
+        {
+          "type": "image_picker",
+          "id": "imagem",
+          "label": "Görsel (mobil için)"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Bağlantı"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 3,
+  "presets": [
+    {
+      "name": "EcomMinds 3 Grid",
+      "blocks": [
+        { "type": "banner" },
+        { "type": "banner" },
+        { "type": "banner" }
+      ]
+    }
+  ]
+}
+{% endschema %}
+{% style %}
+  #e-hero-three-grid-{{ section.id }}{
+    padding-top:{{ section.settings.s_padding_top }}px;
+    padding-bottom:{{ section.settings.s_padding_bottom }}px;
+    background:{{ section.settings.background }};
+  }
+{% endstyle %}
+

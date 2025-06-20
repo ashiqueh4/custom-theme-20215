@@ -1,0 +1,331 @@
+
+{{ 'collection-discovery.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'collection-discovery.js' | asset_url }}" defer="defer"></script>
+
+<section id="ecomminds-collection-section">
+  <div class="ecomminds-container">
+    <div class="ecomminds-grid">
+      <div class="large-up--one-third xlarge-up--one-quarter">
+        <div class="category-card-nav">
+          <p class="subhead--large-regular">{{ section.settings.subheading }}</p>
+          <h3 class="heading--large-regular">{{ section.settings.heading }}</h3>
+          <a
+            href="{{ section.settings.button_url }}"
+            class="ecomminds-button button--border gradient-border card-figcaption-button cta--small small-down--hide"
+          >
+            <span>{{ section.settings.button }}</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="large-up--two-thirds xlarge-up--three-quarters">
+        <!-- dektop code -->
+      
+        <div class="category-card-grid small-down--hide">
+          {% for block in section.blocks %}
+            <div class="category-card module module-article article">
+              <div
+                class="category-card__image opacity lazyloaded"
+                data-bg="{{ block.settings.card_image|img_url:"master" }}"
+                alt="{{ block.settings.card_heading }}"
+                role="presentation"
+                style="background-image: url({{ block.settings.card_image|img_url:"original" }});"
+              ></div>
+              <div class="ecomminds-header">
+                <p class="subhead--large-medium">{{ block.settings.card_heading }}</p>
+                <a
+                  href="{{ block.settings.collection.url }}"
+                  class="ecomminds-button button--border gradient-border cta--small"
+                >
+                  <span>{{ block.settings.card_button }}</span>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+          
+        </div>
+        <!-- end desktop code -->
+
+        <!-- mobile code -->
+        <section class="ecomminds-slider medium-up--hide">
+          <div class="content">
+            <div class="swiper swiper-cards">
+              <div class="swiper-wrapper">
+                {% for block in section.blocks %}
+                  <div class="swiper-slide">
+                    <img src="{{ block.settings.card_image|img_url:"medium" }}" alt="{{ block.settings.card_heading }}" width="100%" height="100%">
+                    <div class="ecomminds-card">
+                      <div class="ecomminds-card-title">
+                        <p class="subhead--large-medium">{{ block.settings.card_heading }}</p>
+                        <a
+                          href="{{ block.settings.collection.url }}"
+                          class="ecomminds-button button--border gradient-border cta--small"
+                        >
+                          <span>{{ block.settings.card_button }}</span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- end mobile code -->
+      </div>
+    </div>
+    <a
+      href="{{ section.settings.button_url }}"
+      class="ecomminds-button button--border gradient-border card-figcaption-button medium-up--hide"
+    >
+      <span class="">{{ section.settings.button }}</span>
+    </a>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Collection Discovery",
+  "settings": [
+    {
+      "type": "header",
+      "content": "settings"
+    },
+    {
+      "type": "text",
+      "default":"explore our collections",
+      "id": "subheading",
+      "label": "Sub Heading"
+    },
+   {
+      "type": "range",
+      "id": "font_size_subheading",
+      "min": 12,
+      "max": 60,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "font-weight_subheading",
+      "min": 100,
+      "max": 900,
+      "step": 100,
+      "unit": "px",
+      "label": "Font weight",
+      "default": 400
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "default":"show me products that...",
+      "label": "Heading"
+    },
+    {
+      "type": "range",
+      "id": "font_size_heading",
+      "min": 12,
+      "max": 90,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "font-weight_heading",
+      "min": 100,
+      "max": 900,
+      "step": 100,
+      "unit": "px",
+      "label": "Font weight",
+      "default": 500
+    },
+    {
+      "type": "text",
+      "id": "button",
+      "default":"view all collections",
+      "label": "Button"
+
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button"
+    },
+    {
+      "type": "range",
+      "id": "font_size_button",
+      "min": 12,
+      "max": 90,
+      "step": 1,
+      "unit": "px",
+      "label": "Font size",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "font-weight_button",
+      "min": 100,
+      "max": 900,
+      "step": 100,
+      "unit": "px",
+      "label": "Font weight",
+      "default": 400
+    },
+        {
+          "type": "header",
+          "content": "Scrollbar Settings"
+        },
+        {
+          "type": "range",
+          "id": "width_Scrollbar",
+          "min": 2,
+          "max": 25,
+          "step": 1,
+          "unit": "px",
+          "label": "width Scrollbar",
+          "default": 10
+        },
+        {
+          "type": "color",
+          "id": "Scrollbar_color",
+          "label": "Scrollbar Colour",
+          "default": "#e6e6e6"
+        },
+        {
+          "type": "color",
+          "id": "Scrollbar_color_hover",
+          "label": "Scrollbar hover Colour ",
+          "default": "#707070"
+        },
+        {
+          "type": "range",
+          "id": "radius_Scrollbar",
+          "min": 5,
+          "max": 25,
+          "step": 1,
+          "unit": "px",
+          "label": "Radius Scrollbar",
+          "default": 10
+        },
+      {
+       "type": "header",
+       "content": "Buttons Settings"
+      },
+      {
+          "type": "color",
+          "id": "buttons_color",
+          "label": "Buttons Colour",
+          "default": "#414042"
+      },
+      {
+          "type": "color",
+          "id": "buttons_color_hover",
+          "label": "Buttons Hover Colour",
+          "default": "#7800bf"
+      },
+      {
+       "type": "header",
+       "content": "Card Items Settings"
+      },
+      {
+          "type": "color",
+          "id": "slider_card_text_color",
+          "label": "Card Items Text Colour",
+          "default": "#fff"
+      },
+
+
+
+  ],
+  "blocks": [
+      {
+      "type": "SliderCards",
+      "name": "SliderCards",
+      "settings": [
+          {
+            "type": "image_picker",
+            "id": "card_image",
+            "label": "Card Image",
+          },
+          {
+            "type": "text",
+            "id": "card_heading",
+            "label": "Card Title",
+            "default":"are so spa core"
+          },
+          {
+            "type": "collection",
+            "id": "collection",
+            "label": "Collection"
+          },
+          {
+            "type": "text",
+            "id": "card_button",
+            "label": "Card Button",
+            "default":"view products"
+          },
+      ]
+    },
+
+  ],
+    "presets": [
+  {
+    "name": "Collection Discovery",
+     "blocks": [
+       {
+         "type": "SliderCards"
+       }
+     ]
+  }
+]
+}
+{% endschema %}
+{% style %}
+    /* css with liquid settings */
+        #ecomminds-collection-section .category-card-nav .subhead--large-regular,#ecomminds-collection-section .subhead--large-medium{
+            font-size:{{ section.settings.font_size_subheading }}px;
+            font-weight:{{ section.settings.font-weight_subheading }};
+            margin: 0 0px 10px 0;
+          }
+        #ecomminds-collection-section .category-card-nav .heading--large-regular{
+            font-size:{{ section.settings.font_size_heading }}px;
+            font-weight:{{ section.settings.font-weight_heading }};
+            margin: 0 0px 10px 0;
+          }
+        #ecomminds-collection-section .ecomminds-button{
+            font-size:{{ section.settings.font_size_button }}px;
+            font-weight:{{ section.settings.font-weight_button }};
+            margin: 0 0px 10px 0;
+         }
+        #ecomminds-collection-section .category-card-grid::-webkit-scrollbar {
+            width: {{ section.settings.width_Scrollbar }}px;
+         }
+        #ecomminds-collection-section .category-card-grid::-webkit-scrollbar-track {
+            background: transparent;
+         }
+        #ecomminds-collection-section .category-card-grid::-webkit-scrollbar-thumb {
+            background: {{ section.settings.Scrollbar_color }};
+            border-radius: {{ section.settings.radius_Scrollbar }}px;
+         }
+        #ecomminds-collection-section .category-card-grid::-webkit-scrollbar-thumb:hover {
+            background: {{ section.settings.Scrollbar_color_hover }};
+         }
+      #ecomminds-collection-section .ecomminds-button.button--border{
+          color:{{ section.settings.buttons_color }};
+          line-height: 46px;
+          z-index: 1;
+          text-decoration: none;
+        }
+      .ecomminds-button.button--border.gradient-border:hover span{
+        color: {{ section.settings.buttons_color_hover }}; !important;
+      }
+      .ecomminds-header .subhead--large-medium {
+        color:{{ section.settings.slider_card_text_color }};
+    }
+
+  /* end css with liquid settings */
+{% endstyle %}

@@ -1,0 +1,112 @@
+{{ 'ecomminds-collection-svg.css' | asset_url | stylesheet_tag }}
+
+<div class="ecomminds-svg-section" style="height:130px; padding-top:20px; margin:0 auto; text-align: {{ section.settings.alignment }};">
+  {% if section.settings.section_title != blank %}
+    <h2>{{ section.settings.section_title }}</h2>
+  {% endif %}
+  <ecomminds-svg-slider-outer>
+  <div class="ecomminds-svg-slider" style="overflow-x:auto; -webkit-overflow-scrolling: touch; white-space: nowrap; padding-bottom:15px;">
+      <div class="swiper esstSwiper">
+    <div class="swiper-wrapper">
+    {% for block in section.blocks %}
+      <div class="swiper-slide">
+      {% if block.settings.image != blank %}
+        <div class="ecomminds-svg-block" style="display:inline-block; vertical-align:top; margin-right: {{ section.settings.block_spacing }}px;">
+          <a href="{{ block.settings.link }}">
+            <img src="{{ block.settings.image | img_url: 'master' }}" alt="{{ block.settings.blog }}" width="{{ section.settings.icon_height }}" height="{{ section.settings.icon_height }}" style="height:{{ section.settings.icon_height }}px; width:auto;" loading="lazy" decoding="async" />
+          </a>
+          {% if block.settings.blog != blank %}
+            <div class="ecomminds-svg-blog">{{ block.settings.blog }}</div>
+          {% endif %}
+        </div>
+      {% endif %}
+      </div>
+    {% endfor %}
+    </div>
+    </div>
+  </div>
+</ecomminds-svg-slider-outer>
+</div>
+
+
+
+{% schema %}
+{
+  "name": "Ecomminds SVG",
+  "settings": [
+     {
+      "type": "header",
+      "content": "Destek için info@ecomminds.com.tr"
+    },
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Bölüm Başlığı",
+      "default": "Görsel Bloklar"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "Konumlandırma",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "Sol"
+        },
+        {
+          "value": "center",
+          "label": "Merkez"
+        },
+        {
+          "value": "right",
+          "label": "Sağ"
+        }
+      ]
+    },
+    {
+      "type": "number",
+      "id": "icon_height",
+      "label": "İkon Yüksekliği (px)",
+      "default": 80
+    },
+    {
+      "type": "number",
+      "id": "block_spacing",
+      "label": "Bloklar Arası Boşluk (px)",
+      "default": 10
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image_block",
+      "name": "Görsel Bloğu",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Görsel Seçin"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Görsel Linki",
+        },
+        {
+          "type": "text",
+          "id": "blog",
+          "label": "Blog Başlığı",
+          "default": "Blog Başlığı"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Ecomminds SVG",
+      "category": "Özel"
+    }
+  ]
+}
+{% endschema %}
+<script src="{{ 'ecomminds-svg-slider-outer.js' | asset_url }}" defer="defer"></script>

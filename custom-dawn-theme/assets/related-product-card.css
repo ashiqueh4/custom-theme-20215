@@ -1,0 +1,53 @@
+
+document.addEventListener("DOMContentLoaded", function () {
+  if (typeof Swiper !== "undefined") {
+
+    if (!customElements.get("ecomminds-customer-review")) {
+      class SwiperCustomerReview extends HTMLElement {
+        constructor() {
+          super();
+
+          if (Shopify.designMode) {
+            window.addEventListener("shopify:section:load", () => {
+              this.mountSlider();
+            });
+          }
+
+          this.mountSlider();
+        }
+
+        mountSlider() {
+          const swiperContainer = this.querySelector(".crevSwiper");
+          const sliderSetting = this.dataset.sliderSelected; // Read from data-slider-selected
+          const isDesktop = window.innerWidth < 900;
+
+          // Fallback to 3 if sliderSetting is undefined or invalid
+          const slidesPerViewValue = parseInt(sliderSetting) || 3;
+
+          if (swiperContainer && !swiperContainer.classList.contains("swiper-initialized")) {
+            this.slider = new Swiper(swiperContainer, {
+              slidesPerView: slidesPerViewValue,
+              spaceBetween: 0,
+              loop: isDesktop,
+              autoplay:isDesktop,
+              breakpoints: {
+                0: {
+                  slidesPerView: 1
+                },
+                768: {
+                  slidesPerView: slidesPerViewValue
+                },
+                1024: {
+                  slidesPerView: slidesPerViewValue
+                }
+              }
+            });
+          }
+        }
+      }
+
+      customElements.define("ecomminds-customer-review", SwiperCustomerReview);
+    }
+  }
+});
+
